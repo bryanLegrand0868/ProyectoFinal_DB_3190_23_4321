@@ -1,3 +1,4 @@
+// controllers/product.controller.js
 const productService = require('../services/product.service');
 const { validationResult } = require('express-validator');
 
@@ -54,16 +55,14 @@ class ProductController {
         });
       }
 
-      const data = req.body;
-
-      const result = await productService.createProduct(data);
+      const result = await productService.createProduct(req.body);
 
       if (result.success) {
-        const newProduct = await productService.getProductById(result.id_producto);
+        const product = await productService.getProductById(result.id_producto);
         return res.status(201).json({
           success: true,
           message: result.message,
-          data: newProduct
+          data: product
         });
       } else {
         return res.status(400).json(result);
@@ -80,23 +79,20 @@ class ProductController {
 
   async updateProduct(req, res) {
     try {
-      const errors = validationResult(req);
-      if (!errors.isEmpty()) {
-        return res.status(400).json({ 
+      const { id } = req.params;
+      const product = await productService.updateProduct(parseInt(id), req.body);
+
+      if (!product) {
+        return res.status(404).json({
           success: false,
-          errors: errors.array() 
+          message: 'Producto no encontrado'
         });
       }
-
-      const { id } = req.params;
-      const data = req.body;
-
-      const updatedProduct = await productService.updateProduct(parseInt(id), data);
 
       return res.json({
         success: true,
         message: 'Producto actualizado correctamente',
-        data: updatedProduct
+        data: product
       });
       
     } catch (error) {
@@ -111,7 +107,6 @@ class ProductController {
   async deleteProduct(req, res) {
     try {
       const { id } = req.params;
-
       await productService.deleteProduct(parseInt(id));
 
       return res.json({

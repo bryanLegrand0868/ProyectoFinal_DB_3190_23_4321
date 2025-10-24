@@ -1,3 +1,4 @@
+// services/venta.service.js
 const { getConnection, oracledb } = require('../config/database');
 
 class VentaService {
@@ -17,7 +18,7 @@ class VentaService {
       const iva = subtotal * 0.13; // 13% IVA
       const total = subtotal + iva;
       
-      // Insertar la venta
+      // 🔥 ARREGLO: Usar 'P' si cambiaste el CHECK, o 'Pendiente' si no
       const ventaResult = await connection.execute(
         `INSERT INTO ventas (
           id_venta, id_sucursal, id_empleado, id_cliente,
@@ -36,8 +37,7 @@ class VentaService {
           iva,
           total,
           id_venta: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
-        },
-        { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        }
       );
 
       const id_venta = ventaResult.outBinds.id_venta[0];
@@ -60,8 +60,7 @@ class VentaService {
             cantidad: detalle.cantidad,
             precio_unitario: detalle.precio_unitario,
             subtotal: subtotalDetalle
-          },
-          { outFormat: oracledb.OUT_FORMAT_OBJECT }
+          }
         );
         
         // Actualizar inventario
@@ -75,8 +74,7 @@ class VentaService {
             cantidad: detalle.cantidad,
             id_producto: detalle.id_producto,
             id_sucursal: idSucursal
-          },
-          { outFormat: oracledb.OUT_FORMAT_OBJECT }
+          }
         );
       }
 
@@ -137,7 +135,22 @@ class VentaService {
         { outFormat: oracledb.OUT_FORMAT_OBJECT }
       );
 
-      return result.rows;
+      // 🔥 ARREGLO: Mapear filas
+      return result.rows.map(row => ({
+        id_venta: row.ID_VENTA,
+        id_empleado: row.ID_EMPLEADO,
+        nombre_empleado: row.NOMBRE_EMPLEADO,
+        id_cliente: row.ID_CLIENTE,
+        nombre_cliente: row.NOMBRE_CLIENTE,
+        id_sucursal: row.ID_SUCURSAL,
+        nombre_sucursal: row.NOMBRE_SUCURSAL,
+        fecha_venta: row.FECHA_VENTA,
+        subtotal: row.SUBTOTAL,
+        iva: row.IVA,
+        total: row.TOTAL,
+        estado_pago: row.ESTADO_PAGO,
+        estado: row.ESTADO
+      }));
       
     } catch (error) {
       console.error('Error al obtener ventas:', error);
@@ -159,7 +172,6 @@ class VentaService {
     try {
       connection = await getConnection();
       
-      // Obtener datos de la venta
       const ventaResult = await connection.execute(
         `SELECT 
           v.id_venta,
@@ -188,9 +200,24 @@ class VentaService {
         return null;
       }
 
-      const venta = ventaResult.rows[0];
+      const row = ventaResult.rows[0];
+      const venta = {
+        id_venta: row.ID_VENTA,
+        id_empleado: row.ID_EMPLEADO,
+        nombre_empleado: row.NOMBRE_EMPLEADO,
+        id_cliente: row.ID_CLIENTE,
+        nombre_cliente: row.NOMBRE_CLIENTE,
+        id_sucursal: row.ID_SUCURSAL,
+        nombre_sucursal: row.NOMBRE_SUCURSAL,
+        fecha_venta: row.FECHA_VENTA,
+        subtotal: row.SUBTOTAL,
+        iva: row.IVA,
+        total: row.TOTAL,
+        estado_pago: row.ESTADO_PAGO,
+        estado: row.ESTADO
+      };
 
-      // Obtener detalles de la venta
+      // Obtener detalles
       const detallesResult = await connection.execute(
         `SELECT 
           dv.id_detalle_venta,
@@ -207,7 +234,15 @@ class VentaService {
         { outFormat: oracledb.OUT_FORMAT_OBJECT }
       );
 
-      venta.detalles = detallesResult.rows;
+      venta.detalles = detallesResult.rows.map(d => ({
+        id_detalle_venta: d.ID_DETALLE_VENTA,
+        id_producto: d.ID_PRODUCTO,
+        nombre_producto: d.NOMBRE_PRODUCTO,
+        cantidad: d.CANTIDAD,
+        precio_unitario: d.PRECIO_UNITARIO,
+        descuento: d.DESCUENTO,
+        subtotal: d.SUBTOTAL
+      }));
 
       return venta;
       
@@ -231,14 +266,12 @@ class VentaService {
     try {
       connection = await getConnection();
       
-      // Primero obtener los detalles para devolver el inventario
       const detallesResult = await connection.execute(
         `SELECT id_producto, cantidad FROM detalles_venta WHERE id_venta = :id_venta`,
         { id_venta: idVenta },
         { outFormat: oracledb.OUT_FORMAT_OBJECT }
       );
       
-      // Obtener id_sucursal de la venta
       const ventaResult = await connection.execute(
         `SELECT id_sucursal FROM ventas WHERE id_venta = :id_venta`,
         { id_venta: idVenta },
@@ -266,16 +299,14 @@ class VentaService {
             cantidad: detalle.CANTIDAD,
             id_producto: detalle.ID_PRODUCTO,
             id_sucursal
-          },
-          { outFormat: oracledb.OUT_FORMAT_OBJECT }
+          }
         );
       }
       
       // Anular la venta
       await connection.execute(
         `UPDATE ventas SET estado = 'I', estado_pago = 'A' WHERE id_venta = :id_venta`,
-        { id_venta: idVenta },
-        { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        { id_venta: idVenta }
       );
 
       await connection.commit();

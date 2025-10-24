@@ -1,3 +1,4 @@
+// services/product.service.js
 const { getConnection, oracledb } = require('../config/database');
 
 class ProductService {
@@ -25,13 +26,27 @@ class ProductService {
         FROM productos p
         LEFT JOIN categorias c ON p.id_categoria = c.id_categoria
         LEFT JOIN marcas m ON p.id_marca = m.id_marca
+        WHERE p.estado = 'A'
         ORDER BY p.nombre`,
-        {},
-        { outFormat: oracledb.OUT_FORMAT_OBJECT }
-      );
+       [],
+      { outFormat: oracledb.OUT_FORMAT_OBJECT }
+    );
 
-      return result.rows;
-      
+    // Función auxiliar para limpiar los objetos
+    const limpiarObjeto = (obj) => {
+      const limpio = {};
+      for (const [key, value] of Object.entries(obj)) {
+        // Solo incluir propiedades primitivas
+        if (value !== null && typeof value !== 'object') {
+          // Convertir a minúsculas las claves
+          limpio[key.toLowerCase()] = value;
+        }
+      }
+      return limpio;
+    };
+
+    return result.rows.map(limpiarObjeto);
+    
     } catch (error) {
       console.error('Error al obtener productos:', error);
       throw error;
@@ -74,25 +89,19 @@ class ProductService {
         { outFormat: oracledb.OUT_FORMAT_OBJECT }
       );
 
-      if (!result.rows) return null;
-      
-      // Mapear solo las propiedades necesarias
-      const cleanRows = result.rows.map(row => ({
-        id_producto: row.ID_PRODUCTO || row.id_producto,
-        nombre: row.NOMBRE || row.nombre,
-        descripcion: row.DESCRIPCION || row.descripcion,
-        precio_venta: row.PRECIO_VENTA || row.precio_venta,
-        precio_compra: row.PRECIO_COMPRA || row.precio_compra,
-        id_categoria: row.ID_CATEGORIA || row.id_categoria,
-        nombre_categoria: row.NOMBRE_CATEGORIA || row.nombre_categoria,
-        id_marca: row.ID_MARCA || row.id_marca,
-        nombre_marca: row.NOMBRE_MARCA || row.nombre_marca,
-        codigo_barras: row.CODIGO_BARRAS || row.codigo_barras,
-        imagen_url: row.IMAGEN_URL || row.imagen_url,
-        estado: row.ESTADO || row.estado
-      }));
+       const limpiarObjeto = (obj) => {
+      const limpio = {};
+      for (const [key, value] of Object.entries(obj)) {
+        // Solo incluir propiedades primitivas
+        if (value !== null && typeof value !== 'object') {
+          // Convertir a minúsculas las claves
+          limpio[key.toLowerCase()] = value;
+        }
+      }
+      return limpio;
+    };
 
-      return cleanRows[0];
+    return result.rows.map(limpiarObjeto);
       
     } catch (error) {
       console.error('Error al obtener producto:', error);
@@ -116,7 +125,6 @@ class ProductService {
       
       const { nombre, descripcion, precio_venta, precio_compra, id_categoria, id_marca, codigo_barras } = data;
       
-      // Generar código de barras único si no se proporciona
       const codigoBarrasFinal = codigo_barras || `AUTO${Date.now()}${Math.random().toString(36).substr(2, 5).toUpperCase()}`;
       
       const result = await connection.execute(
@@ -136,17 +144,17 @@ class ProductService {
           precio_compra,
           precio_venta,
           id_producto: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
-        },
-        { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        }
       );
 
       const id_producto = result.outBinds.id_producto[0];
 
       await connection.commit();
+      
       return {
         success: true,
         message: 'Producto creado correctamente',
-        id_producto
+        id_producto: Number(id_producto)
       };
       
     } catch (error) {
@@ -195,8 +203,7 @@ class ProductService {
           codigo_barras: codigo_barras || null,
           estado: estado || null,
           id_producto: idProducto
-        },
-        { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        }
       );
 
       await connection.commit();
