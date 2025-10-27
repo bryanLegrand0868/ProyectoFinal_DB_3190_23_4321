@@ -1,0 +1,67 @@
+/* dashboard.component.css */
+/* Add these styles to your existing CSS */
+
+/* Button styles */
+.p-button {
+  margin-right: 0.5rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+/* Modal styles */
+.p-dialog .p-dialog-header {
+  background: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.p-dialog .p-dialog-content {
+  padding: 1.5rem;
+}
+
+/* Status badges */
+.sale-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.status-pendiente {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.status-completada {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.status-cancelada {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+/* Table styles */
+.p-datatable .p-datatable-thead > tr > th {
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .p-dialog {
+    width: 95% !important;
+    max-width: 95% !important;
+  }
+  
+  .p-button-label {
+    display: none;
+  }
+  
+  .p-button-icon {
+    margin: 0 !important;
+  }
+}

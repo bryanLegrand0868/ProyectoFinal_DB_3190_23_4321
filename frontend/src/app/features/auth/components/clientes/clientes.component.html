@@ -1,0 +1,11 @@
+<h2>Clientes</h2>
+<div>
+  <input [value]="q" (input)="q = $event.target.value" placeholder="Buscar por nombre/email" />
+  <button (click)="search()">Buscar</button>
+  <button (click)="load()">Cargar todos</button>
+</div>
+<div *ngIf="loading">Cargando...</div>
+<ul *ngIf="!loading">
+  <li *ngFor="let c of clientes">{{c.id_cliente}} - {{c.nombres}} {{c.apellidos}} - {{c.email}}</li>
+</ul>
+<div *ngIf="!loading && !clientes.length">No hay clientes</div>

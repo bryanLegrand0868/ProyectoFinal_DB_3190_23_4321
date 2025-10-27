@@ -1,0 +1,15 @@
+<h2>Inventario</h2>
+<div>
+  <button (click)="load()">Cargar inventario</button>
+  <button (click)="exportBajo()" [disabled]="!inventario.length">Exportar inventario bajo</button>
+</div>
+<div *ngIf="loading">Cargando...</div>
+<table *ngIf="!loading && inventario.length">
+  <thead><tr><th>Producto</th><th>Sucursal</th><th>Disponible</th><th>Mínimo</th></tr></thead>
+  <tbody>
+    <tr *ngFor="let i of inventario">
+      <td>{{i.producto || i.nombre}}</td><td>{{i.sucursal}}</td><td>{{i.cantidad_disponible}}</td><td>{{i.cantidad_minima}}</td>
+    </tr>
+  </tbody>
+</table>
+<div *ngIf="!loading && !inventario.length">No hay registros</div>

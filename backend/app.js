@@ -16,7 +16,7 @@ app.use('/api/inventory', require('./routes/inventory.routes'));
 const PORT = process.env.PORT || 3000;
 
 initialize().then(() => {
-  app.listen(PORT, () => console.log(`🚀 Servidor en puerto ${PORT}`));
+  app.listen(PORT, () => console.log(`Servidor en puerto ${PORT}`));
 }).catch(err => {
   console.error('Error iniciando servidor:', err);
   process.exit(1);

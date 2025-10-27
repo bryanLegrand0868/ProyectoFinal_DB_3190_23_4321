@@ -1,0 +1,13 @@
+<h2>Pedidos Online</h2>
+<div>
+  <button (click)="load()">Cargar pedidos</button>
+  <button (click)="exportExcel()" [disabled]="!pedidos.length">Exportar Excel</button>
+</div>
+<div *ngIf="loading">Cargando...</div>
+<table *ngIf="!loading && pedidos.length">
+  <thead><tr><th>ID</th><th>Cliente</th><th>Total</th><th>Estado</th></tr></thead>
+  <tbody>
+    <tr *ngFor="let p of pedidos"><td>{{p.id_pedido}}</td><td>{{p.id_cliente}}</td><td>{{p.total}}</td><td>{{p.estado_pedido}}</td></tr>
+  </tbody>
+</table>
+<div *ngIf="!loading && !pedidos.length">No hay pedidos</div>

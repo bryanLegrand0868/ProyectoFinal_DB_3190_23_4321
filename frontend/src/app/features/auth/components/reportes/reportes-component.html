@@ -1,0 +1,14 @@
+<h2>Reportes Gerenciales</h2>
+    <div>
+      <h3>Ventas (rango)</h3>
+      <input type="date" [value]="desde" (input)="desde = $any($event.target).value" /> - <input type="date" [value]="hasta" (input)="hasta = $any($event.target).value" />
+      <button (click)="downloadVentas()">Descargar ventas</button>
+    </div>
+    <div>
+      <h3>Top 10 Clientes</h3>
+      <button (click)="downloadTopClientes()">Descargar Top10</button>
+    </div>
+    <div>
+      <h3>Inventario Bajo</h3>
+      <button (click)="downloadInventarioBajo()">Descargar Inventario Bajo</button>
+    </div>

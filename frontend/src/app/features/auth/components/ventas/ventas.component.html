@@ -1,0 +1,14 @@
+<h2>Ventas</h2>
+<div>
+  <button (click)="load()">Cargar ventas</button>
+  <button (click)="exportExcel()" [disabled]="!ventas.length">Exportar Excel</button>
+  <button (click)="exportPdf()" [disabled]="!ventas.length">Exportar PDF</button>
+</div>
+<div *ngIf="loading">Cargando...</div>
+<table *ngIf="!loading && ventas.length">
+  <thead><tr><th>ID</th><th>Fecha</th><th>Total</th><th>Estado</th></tr></thead>
+  <tbody>
+    <tr *ngFor="let v of ventas"><td>{{v.id_venta}}</td><td>{{v.fecha_venta}}</td><td>{{v.total}}</td><td>{{v.estado_pago}}</td></tr>
+  </tbody>
+</table>
+<div *ngIf="!loading && !ventas.length">No hay datos</div>

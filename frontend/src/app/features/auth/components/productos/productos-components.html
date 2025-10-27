@@ -1,0 +1,103 @@
+<div class="card">
+  <p-toast></p-toast>
+  <p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>
+
+  <div class="flex justify-content-between align-items-center mb-4">
+    <h2>Gestión de Productos</h2>
+    <button pButton pRipple icon="pi pi-plus" label="Nuevo Producto" class="p-button-success"
+      (click)="showNewProductDialog()"></button>
+  </div>
+
+  <p-table [value]="productos" [loading]="loading" [paginator]="true" [rows]="10" [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10,25,50]" currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} productos"
+    [globalFilterFields]="['nombre','precio_venta']">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 3rem"></th>
+        <th pSortableColumn="nombre">Nombre <p-sortIcon field="nombre"></p-sortIcon></th>
+        <th pSortableColumn="precio_venta">Precio <p-sortIcon field="precio_venta"></p-sortIcon></th>
+        <th style="width: 10rem">Acciones</th>
+      </tr>
+      <tr>
+        <th>
+          <p-columnFilter type="text" field="nombre" display="menu"></p-columnFilter>
+        </th>
+        <th>
+          <p-columnFilter type="text" field="nombre" display="menu"></p-columnFilter>
+        </th>
+        <th></th>
+        <th></th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-product>
+      <tr>
+        <td>
+          <span class="p-column-title">ID</span>
+          {{product.id_producto}}
+        </td>
+        <td>
+          <span class="p-column-title">Nombre</span>
+          {{product.nombre}}
+        </td>
+        <td>
+          <span class="p-column-title">Precio</span>
+          {{product.precio_venta | currency:'MXN':'symbol-narrow':'1.2-2'}}
+        </td>
+        <td>
+          <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-primary"
+            (click)="editProduct(product)" pTooltip="Editar" tooltipPosition="top"></button>
+          <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
+            (click)="deleteProduct(product)" pTooltip="Eliminar" tooltipPosition="top"></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4" class="text-center">
+          No se encontraron productos. Haga clic en 'Nuevo Producto' para agregar uno.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Product Dialog -->
+<p-dialog [(visible)]="displayDialog" [style]="{width: '450px'}"
+  header="{{selectedProduct.id_producto ? 'Editar' : 'Nuevo'}} Producto" [modal]="true" [closable]="false"
+  [styleClass]="'p-fluid'">
+
+  <form (ngSubmit)="saveProduct()" #productForm="ngForm">
+    <div class="field">
+      <label for="nombre">Nombre</label>
+      <input id="nombre" type="text" pInputText [(ngModel)]="selectedProduct.nombre" name="nombre" required
+        minlength="3" #nombre="ngModel" autofocus>
+      <small *ngIf="(nombre.invalid && (nombre.dirty || nombre.touched || submitted))" class="p-error">
+        <span *ngIf="nombre.errors?.['required']">El nombre es requerido</span>
+        <span *ngIf="nombre.errors?.['minlength']">El nombre debe tener al menos 3 caracteres</span>
+      </small>
+    </div>
+
+    <div class="field">
+      <label for="precio_venta">Precio</label>
+      <p-inputNumber id="precio_venta" [(ngModel)]="selectedProduct.precio_venta" name="precio_venta" mode="currency"
+        currency="MXN" locale="es-MX" [min]="0.01" [minFractionDigits]="2" [maxFractionDigits]="2" required
+        #precio_venta="ngModel">
+      </p-inputNumber>
+      <small *ngIf="(precio_venta.invalid && (precio_venta.dirty || precio_venta.touched || submitted))"
+        class="p-error">
+        <span *ngIf="precio_venta.errors?.['required']">El precio es requerido</span>
+        <span *ngIf="precio_venta.errors?.['min']">El precio debe ser mayor a 0</span>
+      </small>
+    </div>
+
+    <div class="flex justify-content-end mt-4">
+      <button pButton pRipple type="button" label="Cancelar" icon="pi pi-times" class="p-button-text"
+        (click)="displayDialog = false"></button>
+      <button pButton pRipple type="submit" label="Guardar" icon="pi pi-check" class="p-button-text"
+        [disabled]="!isProductValid()"></button>
+    </div>
+  </form>
+</p-dialog>

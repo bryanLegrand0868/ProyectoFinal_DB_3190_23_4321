@@ -1,0 +1,61 @@
+<div class="login-container">
+  <div class="login-card">
+    <div class="card-header">
+      Iniciar Sesión
+    </div>
+    <div class="card-body">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+        <div class="field">
+          <label for="usuario">Usuario</label>
+          <input id="usuario" type="text" pInputText formControlName="usuario" placeholder="Ingrese su usuario"
+            [ngClass]="{'ng-invalid ng-dirty': loginForm.get('usuario')?.touched && loginForm.get('usuario')?.invalid}">
+          <small class="p-error" *ngIf="loginForm.get('usuario')?.touched && loginForm.get('usuario')?.invalid">
+            Usuario es requerido
+          </small>
+        </div>
+
+        <div class="field">
+          <label for="contrasena">Contraseña</label>
+          <p-password 
+            formControlName="contrasena"
+            [toggleMask]="true"
+            [feedback]="false"
+            [inputStyle]="{'width':'100%'}"
+            placeholder="Ingrese su contraseña"
+            [ngClass]="{'ng-invalid ng-dirty': loginForm.get('contrasena')?.touched && loginForm.get('contrasena')?.invalid}">
+            <ng-template pTemplate="header">
+              <h6>Ingrese una contraseña segura</h6>
+            </ng-template>
+            <ng-template pTemplate="footer">
+              <p class="mt-2">Requisitos:</p>
+              <ul class="pl-2 ml-2 mt-0" style="line-height: 1.5">
+                <li>Al menos 8 caracteres</li>
+                <li>Al menos 1 número</li>
+                <li>Al menos 1 letra mayúscula</li>
+              </ul>
+            </ng-template>
+          </p-password>
+          <small class="p-error" *ngIf="loginForm.get('contrasena')?.touched && loginForm.get('contrasena')?.invalid">
+            Contraseña es requerida
+          </small>
+        </div>
+
+        <div *ngIf="error" class="error-message">
+          <i class="pi pi-exclamation-triangle"></i> {{ error }}
+        </div>
+
+        <div class="button-container">
+          <button 
+            pButton 
+            type="submit"
+            [disabled]="loginForm.invalid || loading"
+            class="p-button-primary w-full"
+            [ngClass]="{'p-button-loading': loading}">
+            <i class="pi pi-sign-in mr-2"></i>
+            <span>Iniciar Sesión</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
