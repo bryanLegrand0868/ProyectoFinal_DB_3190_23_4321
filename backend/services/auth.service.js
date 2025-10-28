@@ -3,92 +3,107 @@ const jwt = require('jsonwebtoken');
 
 class AuthService {
   
-  async authenticate(usuario, contrasena, ipOrigen = '0.0.0.0') {
-    let connection;
+async authenticate(usuario, contrasena, ipOrigen = '0.0.0.0') {
+  let connection;
+  
+  try {
+    connection = await getConnection();
     
-    try {
-      connection = await getConnection();
-      
-      const result = await connection.execute(
-        `BEGIN 
-          sp_autenticar_usuario(
-            p_usuario => :usuario,
-            p_contrasena => :contrasena,
-            p_ip_origen => :ip_origen,
-            p_resultado => :resultado,
-            p_id_usuario => :id_usuario,
-            p_id_rol => :id_rol,
-            p_nombre_rol => :nombre_rol,
-            p_id_empleado => :id_empleado,
-            p_id_sucursal => :id_sucursal
-          );
-        END;`,
-        {
-          usuario,
-          contrasena,
-          ip_origen: ipOrigen,
-          resultado: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 500 },
-          id_usuario: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-          id_rol: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-          nombre_rol: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 50 },
-          id_empleado: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
-          id_sucursal: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+    const result = await connection.execute(
+      `BEGIN 
+        sp_autenticar_usuario(
+          p_usuario => :usuario,
+          p_contrasena => :contrasena,
+          p_ip_origen => :ip_origen,
+          p_resultado => :resultado,
+          p_id_usuario => :id_usuario,
+          p_id_rol => :id_rol,
+          p_nombre_rol => :nombre_rol,
+          p_id_empleado => :id_empleado,
+          p_id_sucursal => :id_sucursal
+        );
+      END;`,
+      {
+        usuario,
+        contrasena,
+        ip_origen: ipOrigen,
+        resultado: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 500 },
+        id_usuario: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+        id_rol: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+        nombre_rol: { dir: oracledb.BIND_OUT, type: oracledb.STRING, maxSize: 50 },
+        id_empleado: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER },
+        id_sucursal: { dir: oracledb.BIND_OUT, type: oracledb.NUMBER }
+      }
+    );
+
+    const { resultado, id_usuario, id_rol, nombre_rol, id_empleado, id_sucursal } = result.outBinds;
+
+    if (resultado === 'OK') {
+      // 🔥 NUEVO: Obtener id_cliente si el usuario es Cliente
+      let id_cliente = null;
+      if (nombre_rol === 'Cliente') {
+        const clienteResult = await connection.execute(
+          `SELECT id_cliente FROM usuarios WHERE id_usuario = :id_usuario`,
+          { id_usuario },
+          { outFormat: oracledb.OUT_FORMAT_OBJECT }
+        );
+        if (clienteResult.rows.length > 0) {
+          id_cliente = clienteResult.rows[0].ID_CLIENTE;
         }
+      }
+
+      // Generar token JWT
+      const token = jwt.sign(
+        {
+          id_usuario,
+          usuario,
+          id_rol,
+          nombre_rol,
+          id_empleado,
+          id_sucursal,
+          id_cliente  // 🔥 AGREGADO
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN }
       );
 
-      const { resultado, id_usuario, id_rol, nombre_rol, id_empleado, id_sucursal } = result.outBinds;
+      // Obtener permisos del usuario
+      const permisos = await this.getPermisosUsuario(connection, id_rol);
 
-      if (resultado === 'OK') {
-        // Generar token JWT
-        const token = jwt.sign(
-          {
-            id_usuario,
-            usuario,
-            id_rol,
-            nombre_rol,
-            id_empleado,
-            id_sucursal
-          },
-          process.env.JWT_SECRET,
-          { expiresIn: process.env.JWT_EXPIRES_IN }
-        );
-
-        // Obtener permisos del usuario
-        const permisos = await this.getPermisosUsuario(connection, id_rol);
-
-        return {
-          success: true,
-          token,
-          user: {
-            id_usuario,
-            usuario,
-            id_rol,
-            nombre_rol,
-            id_empleado,
-            id_sucursal,
-            permisos
-          }
-        };
-      } else {
-        return {
-          success: false,
-          message: resultado
-        };
-      }
-      
-    } catch (error) {
-      console.error('Error en autenticación:', error);
-      throw error;
-    } finally {
-      if (connection) {
-        try {
-          await connection.close();
-        } catch (err) {
-          console.error('Error al cerrar conexión:', err);
+      return {
+        success: true,
+        token,
+        user: {
+          id_usuario,
+          usuario,
+          id_rol,
+          nombre_rol,
+          id_empleado,
+          id_sucursal,
+          id_cliente,  // 🔥 AGREGADO
+          permisos
         }
+      };
+    } else {
+      return {
+        success: false,
+        message: resultado
+      };
+    }
+    
+  } catch (error) {
+    console.error('Error en autenticación:', error);
+    throw error;
+  } finally {
+    if (connection) {
+      try {
+        await connection.close();
+      } catch (err) {
+        console.error('Error al cerrar conexión:', err);
       }
     }
   }
+}
 
   async getPermisosUsuario(connection, idRol) {
     try {

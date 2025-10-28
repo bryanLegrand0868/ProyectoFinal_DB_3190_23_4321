@@ -21,7 +21,8 @@ const authenticateJWT = (req, res, next) => {
       id_rol: decoded.id_rol,
       nombre_rol: decoded.nombre_rol,
       id_empleado: decoded.id_empleado,
-      id_sucursal: decoded.id_sucursal
+      id_sucursal: decoded.id_sucursal,
+      id_cliente: decoded.id_cliente  // 🔥 AGREGADO
     };
     
     next();
@@ -42,7 +43,6 @@ const authorizeRoles = (...roles) => {
       });
     }
 
-    // Convertir ambos a mayúsculas para comparación case-insensitive
     const userRole = req.user.nombre_rol?.toUpperCase();
     const allowedRoles = roles.map(role => role.toUpperCase());
 
