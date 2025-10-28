@@ -116,17 +116,31 @@ export class DashboardComponent implements OnInit {
 
   showProducts() {
     this.loadingModal = true;
-    this.modalTitle = 'Lista de Productos';
+    this.modalTitle = 'Productos';
     this.dashboardService.getProducts().subscribe({
-      next: (data) => {
-        this.modalData = data;
+      next: (products: any[]) => {
+        this.modalData = Array.isArray(products) ? products : [];
+
         this.modalColumns = [
-          { field: 'id', header: 'ID' },
+          { field: 'id_producto', header: 'ID' },
           { field: 'nombre', header: 'Nombre' },
           { field: 'descripcion', header: 'Descripción' },
-          { field: 'precio', header: 'Precio', type: 'currency' },
-          { field: 'stock', header: 'Stock' }
+          {
+            field: 'precio_venta',
+            header: 'Precio',
+            type: 'currency'
+          },
+          {
+            field: 'stock',
+            header: 'Stock',
+            type: 'number'
+          },
+          {
+            field: 'categoria',
+            header: 'Categoría'
+          }
         ];
+
         this.displayModal = true;
         this.loadingModal = false;
       },
@@ -142,23 +156,35 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  showCustomers() {
+  showClients() {
     this.loadingModal = true;
-    this.modalTitle = 'Lista de Clientes';
-    this.dashboardService.getUsers().subscribe({
-      next: (data) => {
-        this.modalData = data.filter((user: any) => user.rol?.nombre === 'Cliente');
+    this.modalTitle = 'Clientes';
+    this.dashboardService.getClients().subscribe({
+      next: (clients: any[]) => {
+        this.modalData = Array.isArray(clients) ? clients : [];
+
         this.modalColumns = [
-          { field: 'id', header: 'ID' },
-          { field: 'nombre', header: 'Nombre' },
-          { field: 'email', header: 'Email' },
-          { field: 'telefono', header: 'Teléfono' }
+          { field: 'id_usuario', header: 'ID' },
+          { field: 'usuario', header: 'Usuario' },
+          { field: 'nombre_rol', header: 'Rol' },
+          {
+            field: 'estado',
+            header: 'Estado',
+            type: 'status',
+            formatter: (value: string) => value === 'A' ? 'Activo' : 'Inactivo'
+          },
+          {
+            field: 'fecha_creacion',
+            header: 'Fecha Creación',
+            type: 'date'
+          }
         ];
+
         this.displayModal = true;
         this.loadingModal = false;
       },
       error: (error) => {
-        console.error('Error loading customers:', error);
+        console.error('Error loading clients:', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -173,8 +199,12 @@ export class DashboardComponent implements OnInit {
     this.loadingModal = true;
     this.modalTitle = 'Pedidos Recientes';
     this.dashboardService.getSales().subscribe({
-      next: (data) => {
-        this.modalData = data;
+      next: (response: any) => {
+        // Handle the API response format
+        const ordersData = response && response.success ? response.data : [];
+
+        this.modalData = Array.isArray(ordersData) ? ordersData : [];
+
         this.modalColumns = [
           { field: 'id', header: 'ID' },
           { field: 'cliente.nombre', header: 'Cliente' },
@@ -201,12 +231,19 @@ export class DashboardComponent implements OnInit {
     this.loadingModal = true;
     this.modalTitle = 'Ventas';
     this.dashboardService.getSales().subscribe({
-      next: (data) => {
-        this.modalData = data.filter((sale: any) => sale.estado === 'completada');
-        this.modalData = this.modalData.map(sale => ({
-          ...sale,
-          fecha: new Date(sale.fecha).toLocaleDateString()
-        }));
+      next: (response: any) => {
+        // Handle the API response format
+        const salesData = response && response.success ? response.data : [];
+
+        this.modalData = Array.isArray(salesData)
+          ? salesData
+            .filter((sale: any) => sale.estado === 'completada')
+            .map(sale => ({
+              ...sale,
+              fecha: new Date(sale.fecha).toLocaleDateString()
+            }))
+          : [];
+
         this.modalColumns = [
           { field: 'id', header: 'ID' },
           { field: 'cliente.nombre', header: 'Cliente' },

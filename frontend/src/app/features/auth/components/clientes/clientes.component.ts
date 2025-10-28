@@ -1,40 +1,91 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
+import { HttpClient } from '@angular/common/http';
+import { MessageService } from 'primeng/api';
+import { ClienteService } from '../../../../shared/services/cliente.service';
 
 @Component({
   selector: 'app-clientes',
   templateUrl: './clientes.component.html',
   standalone: false,
-  
+  providers: [MessageService]
 })
 export class ClientesComponent implements OnInit {
   clientes: any[] = [];
-  q = '';
   loading = false;
-  private apiBase = '/api';
+  displayDialog = false;
+  selectedCliente: any = {};
+  searchQuery: string = '';  // Added for search functionality
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private clienteService: ClienteService,
+    private messageService: MessageService
+  ) { }
 
-  ngOnInit() {}
-
-  load() {
-    this.loading = true;
-    this.http.get<any[]>(`${this.apiBase}/clientes`).subscribe(
-      r => { this.clientes = r || []; this.loading = false; },
-      () => { this.clientes = []; this.loading = false; }
-    );
+  ngOnInit() {
+    this.loadClientes();
   }
 
-  search() {
+loadClientes() {
     this.loading = true;
-    const params = this.q ? `?q=${encodeURIComponent(this.q)}` : '';
-    this.http.get<any[]>(`${this.apiBase}/clientes/search${params}`).subscribe(
-      r => { this.clientes = r || []; this.loading = false; },
-      () => { this.clientes = []; this.loading = false; }
-    );
+    this.clienteService.getClientes().subscribe({
+      next: (response: any) => {
+        // Handle the response format
+        if (response && response.success && Array.isArray(response.data)) {
+          this.clientes = response.data.map((cliente: any) => ({
+            id_cliente: cliente.ID_USUARIO,
+            nombres: cliente.USUARIO,
+            apellidos: '', // Add if available
+            email: '', // Add if available
+            telefono: '', // Add if available
+            rol: cliente.NOMBRE_ROL,
+            estado: cliente.ESTADO
+          }));
+        } else {
+          this.clientes = []; // Ensure it's always an array
+        }
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error loading clientes:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'No se pudieron cargar los clientes'
+        });
+        this.clientes = []; // Ensure it's always an array
+        this.loading = false;
+      }
+    });
+  }
+
+  // Added search method
+  search() {
+    if (!this.searchQuery.trim()) {
+      this.loadClientes();
+      return;
+    }
+    
+    this.loading = true;
+    // Assuming your API supports search by query
+    this.clienteService.searchClientes(this.searchQuery).subscribe({
+      next: (data) => {
+        this.clientes = Array.isArray(data) ? data : [];
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Error searching clientes:', error);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Error al buscar clientes'
+        });
+        this.loading = false;
+      }
+    });
+  }
+
+  // Alias for loadClientes to maintain compatibility with template
+  load() {
+    this.loadClientes();
   }
 }

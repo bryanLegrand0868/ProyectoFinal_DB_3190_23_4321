@@ -146,19 +146,51 @@ export class DashboardService {
 
     return monthlyData;
   }
-  getProducts(): Observable<any[]> {
-    return this.safeGet(`${this.apiUrl}/products`);
+  getClients(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/users`).pipe(
+      map(response => {
+        if (response && response.success) {
+          return response.data || [];
+        }
+        return [];
+      }),
+      catchError(error => {
+        console.error('Error fetching clients:', error);
+        return of([]);
+      })
+    );
   }
 
-  getUsers(): Observable<any[]> {
-    return this.safeGet(`${this.apiUrl}/users`);
+  getProducts(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/products`).pipe(
+      map(response => {
+        if (response && response.success) {
+          return response.data || [];
+        }
+        return [];
+      }),
+      catchError(error => {
+        console.error('Error fetching products:', error);
+        return of([]);
+      })
+    );
   }
 
-  getSales(): Observable<any[]> {
-    return this.safeGet(`${this.apiUrl}/sales`);
+    getSales(): Observable < any > {
+      return this.http.get<any>(`${this.apiUrl}/sales`).pipe(
+        map(response => {
+          if (response && response.success) {
+            return response.data || [];
+          }
+          return [];
+        }),
+        catchError(error => {
+          console.error('Error fetching sales:', error);
+          return of([]); // Return empty array on error
+        })
+      );
+    }
+    getInventory(): Observable < any[] > {
+      return this.safeGet(`${this.apiUrl}/inventory`);
+    }
   }
-
-  getInventory(): Observable<any[]> {
-    return this.safeGet(`${this.apiUrl}/inventory`);
-  }
-}

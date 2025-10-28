@@ -5,7 +5,7 @@
     <p-card header="Ventas Totales" subheader="Este mes" [style]="{'height': '100%'}">
       <div class="stat-card">
         <i class="pi pi-shopping-cart" style="font-size: 2rem; color: #4CAF50"></i>
-        <div class="stat-value">{{ stats.totalSales | currency:'USD':'symbol':'1.2-2' }}</div>
+        <div class="stat-value">{{ stats.totalSales | currency:'Q':'symbol':'1.2-2' }}</div>
         <div class="stat-desc" [ngClass]="{'positive': stats.salesGrowth >= 0, 'negative': stats.salesGrowth < 0}">
           <i [class]="stats.salesGrowth >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"></i>
           {{ stats.salesGrowth | number:'1.0-1' }}% vs mes anterior
@@ -76,7 +76,7 @@
           <tr>
             <td>{{ sale.id }}</td>
             <td>{{ sale.customerName }}</td>
-            <td>{{ sale.total | currency:'USD':'symbol':'1.2-2' }}</td>
+            <td>{{ sale.total | currency:'Q':'symbol':'1.2-2' }}</td>
             <td>
               <span [class]="'sale-status ' + getStatusClass(sale.status)">
                 {{ sale.status | titlecase }}
@@ -98,98 +98,71 @@
 <!-- Add these buttons below the existing dashboard content -->
 <div class="p-grid p-mt-4 p-mx-0">
   <div class="p-col-12 p-md-3 p-mb-2">
-    <button pButton 
-            type="button" 
-            label="Ver Productos" 
-            icon="pi pi-box" 
-            class="p-button-outlined p-button-primary w-full"
-            (click)="showProducts()"></button>
+    <button pButton type="button" label="Ver Productos" icon="pi pi-box" class="p-button-success"
+      (click)="showProducts()"></button>
   </div>
   <div class="p-col-12 p-md-3 p-mb-2">
-    <button pButton 
-            type="button" 
-            label="Ver Clientes" 
-            icon="pi pi-users" 
-            class="p-button-outlined p-button-success w-full"
-            (click)="showCustomers()"></button>
+    <button pButton type="button" label="Ver Clientes" icon="pi pi-users" class="p-button-info"
+      (click)="showClients()"></button>
   </div>
   <div class="p-col-12 p-md-3 p-mb-2">
-    <button pButton 
-            type="button" 
-            label="Ver Pedidos" 
-            icon="pi pi-shopping-bag" 
-            class="p-button-outlined p-button-warning w-full"
-            (click)="showOrders()"></button>
+    <button pButton type="button" label="Ver Pedidos" icon="pi pi-shopping-bag"
+      class="p-button-outlined p-button-warning w-full" (click)="showOrders()"></button>
   </div>
   <div class="p-col-12 p-md-3 p-mb-2">
-    <button pButton 
-            type="button" 
-            label="Ver Ventas" 
-            icon="pi pi-chart-line" 
-            class="p-button-outlined p-button-help w-full"
-            (click)="showSales()"></button>
+    <button pButton type="button" label="Ver Ventas" icon="pi pi-chart-line"
+      class="p-button-outlined p-button-help w-full" (click)="showSales()"></button>
   </div>
 </div>
 
-<!-- Add this modal at the bottom of the file -->
-<p-dialog 
-  [(visible)]="displayModal" 
-  [header]="modalTitle" 
-  [style]="{width: '90vw', maxWidth: '1200px'}" 
-  [modal]="true" 
-  [draggable]="false" 
-  [resizable]="false"
-  [contentStyle]="{'max-height': '70vh', 'overflow': 'auto'}">
-  
-  <div *ngIf="loadingModal" class="p-d-flex p-jc-center p-ai-center" style="height: 200px;">
-    <p-progressSpinner></p-progressSpinner>
-  </div>
+<p-dialog [(visible)]="displayModal" [modal]="true" [style]="{width: '80vw'}" [draggable]="false" [resizable]="false">
+  <p-header>
+    <h2>{{modalTitle}}</h2>
+  </p-header>
 
-  <p-table 
-    *ngIf="!loadingModal" 
-    [value]="modalData" 
-    [scrollable]="true" 
-    scrollHeight="flex" 
-    [rows]="10"
-    [paginator]="true" 
-    [rowsPerPageOptions]="[5,10,20,50]"
-[globalFilterFields]="getFilterFields()">
-    
+  <p-table [value]="modalData" [loading]="loadingModal" [paginator]="true" [rows]="10" [showCurrentPageReport]="true"
+    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
+    [rowsPerPageOptions]="[10,25,50]">
     <ng-template pTemplate="header">
       <tr>
-        <th *ngFor="let col of modalColumns" [style.width]="col.width || 'auto'">
+        <th *ngFor="let col of modalColumns" [pSortableColumn]="col.field">
           {{col.header}}
+          <p-sortIcon [field]="col.field"></p-sortIcon>
         </th>
       </tr>
     </ng-template>
-    
-    <ng-template pTemplate="body" let-rowData>
+    <ng-template pTemplate="body" let-item>
       <tr>
         <td *ngFor="let col of modalColumns">
-          <span [class]="col.type === 'status' ? 'sale-status ' + getStatusClass(getNestedValue(rowData, col.field)) : ''">
-            {{ formatCellValue(rowData, col.field, col.type) }}
-          </span>
+          <ng-container [ngSwitch]="col.type">
+            <ng-container *ngSwitchCase="'currency'">
+              {{getNestedValue(item, col.field) | currency:'Q':'symbol':'1.2-2'}}
+            </ng-container>
+            <ng-container *ngSwitchCase="'date'">
+              {{getNestedValue(item, col.field) | date:'short'}}
+            </ng-container>
+            <ng-container *ngSwitchCase="'status'">
+              <span
+                [class]="'customer-badge status-' + (getNestedValue(item, col.field) === 'A' ? 'active' : 'inactive')">
+                {{getNestedValue(item, col.field) === 'A' ? 'Activo' : 'Inactivo'}}
+              </span>
+            </ng-container>
+            <ng-container *ngSwitchDefault>
+              {{getNestedValue(item, col.field)}}
+            </ng-container>
+          </ng-container>
         </td>
       </tr>
     </ng-template>
-    
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td [attr.colspan]="modalColumns.length" class="text-center">No se encontraron registros</td>
+        <td [attr.colspan]="modalColumns.length" class="p-text-center">
+          No se encontraron registros
+        </td>
       </tr>
     </ng-template>
   </p-table>
-  
-  <ng-template pTemplate="footer">
-    <button pButton 
-            type="button" 
-            label="Cerrar" 
-            icon="pi pi-times" 
-            class="p-button-text"
-            (click)="displayModal = false"></button>
-  </ng-template>
 </p-dialog>
-
 <ng-template #loadingTemplate>
   <div class="p-d-flex p-jc-center p-ai-center" style="height: 400px;">
     <p-progressSpinner></p-progressSpinner>

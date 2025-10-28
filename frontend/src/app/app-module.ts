@@ -5,6 +5,7 @@ import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { routes } from './app-routing-module';
+import { BrowserAnimationsModule, provideAnimations } from '@angular/platform-browser/animations';
 
 // Componentes
 import { App } from './app';
@@ -58,6 +59,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     CommonModule,
     HttpClientModule,
     FormsModule,
@@ -85,6 +87,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
   ],
   providers: [
     MessageService,
+    provideAnimations(),
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],

@@ -38,7 +38,7 @@ export class ProductosComponent implements OnInit {
     private productService: ProductService,
     private messageService: MessageService,
     private http: HttpClient
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.loadProducts();
@@ -51,17 +51,12 @@ export class ProductosComponent implements OnInit {
     this.loading = true;
     this.productService.getProducts().subscribe({
       next: (data: Producto[]) => {
-        this.productos = data || [];
+        this.productos = Array.isArray(data) ? data : [];  // Ensure it's always an array
         this.loading = false;
       },
-      error: (error: any) => {
-        console.error('Error al cargar productos:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudieron cargar los productos',
-          life: 3000
-        });
+      error: (error) => {
+        console.error('Error loading products:', error);
+        this.productos = [];  // Reset to empty array on error
         this.loading = false;
       }
     });
@@ -96,7 +91,7 @@ export class ProductosComponent implements OnInit {
     }
 
     const productData = { ...this.selectedProduct };
-    
+
     if (productData.id_producto) {
       // Actualizar producto existente
       this.productService.updateProduct(productData.id_producto, productData).subscribe({
@@ -187,9 +182,9 @@ export class ProductosComponent implements OnInit {
       .subscribe({
         next: (blob: Blob) => {
           const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a'); 
-          a.href = url; 
-          a.download = 'productos.xlsx'; 
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'productos.xlsx';
           a.click();
           window.URL.revokeObjectURL(url);
         },
