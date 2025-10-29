@@ -1,87 +1,333 @@
-/* dashboard.component.css */
-/* Add these styles to your existing CSS */
-
-/* Button styles */
-.p-button {
-  margin-right: 0.5rem;
+.dashboard-container {
+  animation: fadeIn 0.5s ease-in;
 }
 
-.w-full {
-  width: 100%;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-/* Modal styles */
-.p-dialog .p-dialog-header {
-  background: #f8f9fa;
-  border-bottom: 1px solid #dee2e6;
+.dashboard-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
 }
 
-.p-dialog .p-dialog-content {
+.dashboard-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dashboard-title i {
+  color: #667eea;
+}
+
+.dashboard-subtitle {
+  color: #6b7280;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* Stats Cards */
+.stats-grid {
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 1rem;
+  transition: all 0.3s ease;
+  border-left: 4px solid transparent;
+  height: 100%;
+}
+
+.stat-card:hover {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.stat-card-sales {
+  border-left-color: #10b981;
+}
+
+.stat-card-sales .stat-card-icon {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.stat-card-products {
+  border-left-color: #3b82f6;
+}
+
+.stat-card-products .stat-card-icon {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+.stat-card-customers {
+  border-left-color: #8b5cf6;
+}
+
+.stat-card-customers .stat-card-icon {
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.stat-card-orders {
+  border-left-color: #f59e0b;
+}
+
+.stat-card-orders .stat-card-icon {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+}
+
+.stat-card-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.stat-card-icon i {
+  font-size: 1.75rem;
+  color: white;
+}
+
+.stat-card-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stat-card-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+}
+
+.stat-card-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 0.25rem;
+  line-height: 1.2;
+}
+
+.stat-card-growth,
+.stat-card-desc {
+  font-size: 0.813rem;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 500;
+}
+
+.stat-card-growth.positive,
+.stat-card-desc.positive {
+  color: #10b981;
+}
+
+.stat-card-growth.negative {
+  color: #ef4444;
+}
+
+.stat-card-desc.warning {
+  color: #f59e0b;
+}
+
+.stat-card-desc {
+  color: #6b7280;
+}
+
+/* Cards */
+::ng-deep .chart-card,
+::ng-deep .actions-card {
+  height: 100%;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+::ng-deep .chart-card .p-card-header,
+::ng-deep .actions-card .p-card-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 1.25rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+}
+
+::ng-deep .chart-card .p-card-body,
+::ng-deep .actions-card .p-card-body {
   padding: 1.5rem;
 }
 
-/* Status badges */
-.sale-status {
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
+/* Quick Actions */
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-actions button {
+  margin-bottom: 0.75rem;
+  border-radius: 8px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.quick-actions button:last-child {
+  margin-bottom: 0;
+}
+
+.quick-actions button:hover {
+  transform: translateX(5px);
+}
+
+/* Modal Styles */
+::ng-deep .data-modal .p-dialog-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+::ng-deep .data-modal .p-dialog-content {
+  padding: 0;
+  background: #f9fafb;
+}
+
+.modal-header-content {
+  display: flex;
+  align-items: center;
+  color: white;
+}
+
+.modal-footer-content {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  width: 100%;
+}
+
+.loading-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+}
+
+/* Status Badges */
+.status-badge {
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.813rem;
   font-weight: 600;
-  text-transform: capitalize;
-}
-
-.status-pendiente {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.status-completada {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.status-cancelada {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-/* Table styles */
-.p-datatable .p-datatable-thead > tr > th {
-  background: #f8f9fa;
-  font-weight: 600;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .p-dialog {
-    width: 95% !important;
-    max-width: 95% !important;
-  }
-  
-  .p-button-label {
-    display: none;
-  }
-  
-  .p-button-icon {
-    margin: 0 !important;
-  }
-}
-
-/* In dashboard.component.css */
-.customer-badge {
-  border-radius: 2px;
-  padding: .25em .5rem;
   text-transform: uppercase;
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: .3px;
+  letter-spacing: 0.5px;
+  display: inline-block;
 }
 
-.customer-badge.status-active {
-  background: #C8E6C9;
-  color: #256029;
+.status-active {
+  background: #d1fae5;
+  color: #065f46;
 }
 
-.customer-badge.status-inactive {
-  background: #FFCDD2;
-  color: #C63737;
+.status-inactive {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-completed {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* Table Styles */
+::ng-deep .p-datatable-striped .p-datatable-tbody > tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background: #f3f4f6;
+  color: #374151;
+  font-weight: 600;
+  border: none;
+  padding: 1rem;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  padding: 0.875rem 1rem;
+  border: none;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  background: #f3f4f6;
+}
+
+/* Empty State */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+}
+
+.loading-text {
+  margin-top: 1rem;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+
+  .stat-card {
+    padding: 1rem;
+  }
+
+  .stat-card-icon {
+    width: 50px;
+    height: 50px;
+  }
+
+  .stat-card-icon i {
+    font-size: 1.5rem;
+  }
+
+  .stat-card-value {
+    font-size: 1.5rem;
+  }
+
+  ::ng-deep .chart-card .p-card-body,
+  ::ng-deep .actions-card .p-card-body {
+    padding: 1rem;
+  }
 }

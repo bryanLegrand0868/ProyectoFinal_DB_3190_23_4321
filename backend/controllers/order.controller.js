@@ -12,7 +12,7 @@ class OrderController {
         });
       }
 
-      // 🔥 ACTUALIZADO: Obtener id_cliente del token o del body
+      // ACTUALIZADO: Obtener id_cliente del token o del body
       const idCliente = req.user.id_cliente || req.body.id_cliente;
       
       if (!idCliente) {
@@ -39,7 +39,7 @@ class OrderController {
 
   async getMyOrders(req, res) {
     try {
-      // 🔥 ACTUALIZADO: Obtener id_cliente del token, query param o body
+      // ACTUALIZADO: Obtener id_cliente del token, query param o body
       const idCliente = req.user.id_cliente || req.query.id_cliente || req.body.id_cliente;
       
       if (!idCliente) {

@@ -1,14 +1,189 @@
-<h2>Ventas</h2>
-<div>
-  <button (click)="load()">Cargar ventas</button>
-  <button (click)="exportExcel()" [disabled]="!ventas.length">Exportar Excel</button>
-  <button (click)="exportPdf()" [disabled]="!ventas.length">Exportar PDF</button>
+<p-toast></p-toast>
+
+<div class="ventas-container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">
+        <i class="pi pi-shopping-cart"></i>
+        Gestión de Ventas
+      </h1>
+      <p class="page-subtitle">Registro y consulta de ventas</p>
+    </div>
+    <div class="header-actions">
+      <button pButton type="button" label="Nueva Venta" icon="pi pi-plus" class="p-button-success"
+        (click)="showNewSaleDialog()">
+      </button>
+      <button pButton type="button" label="Exportar Excel" icon="pi pi-file-excel"
+        class="p-button-outlined p-button-success" [disabled]="!ventas.length" (click)="exportExcel()">
+      </button>
+    </div>
+  </div>
+
+  <!-- Tabla de Ventas -->
+  <p-card styleClass="table-card">
+    <p-table [value]="ventas" [loading]="loading" [paginator]="true" [rows]="10" [showCurrentPageReport]="true"
+      currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} ventas" [rowsPerPageOptions]="[10,25,50]"
+      [globalFilterFields]="['id_venta', 'nombre_empleado', 'nombre_cliente']" styleClass="p-datatable-striped">
+
+      <ng-template pTemplate="caption">
+        <div class="table-header">
+          <span class="p-input-icon-left">
+            <i class="pi pi-search"></i>
+            <input pInputText type="text" placeholder="Buscar ventas..." (input)="$any($event.target).value" />
+          </span>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="id_venta">
+            ID <p-sortIcon field="id_venta"></p-sortIcon>
+          </th>
+          <th pSortableColumn="nombre_empleado">
+            Vendedor <p-sortIcon field="nombre_empleado"></p-sortIcon>
+          </th>
+          <th pSortableColumn="nombre_cliente">
+            Cliente <p-sortIcon field="nombre_cliente"></p-sortIcon>
+          </th>
+          <th pSortableColumn="fecha_venta">
+            Fecha <p-sortIcon field="fecha_venta"></p-sortIcon>
+          </th>
+          <th pSortableColumn="total">
+            Total <p-sortIcon field="total"></p-sortIcon>
+          </th>
+          <th>Estado</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-venta>
+        <tr>
+          <td>{{venta.id_venta}}</td>
+          <td>{{venta.nombre_empleado || 'N/A'}}</td>
+          <td>{{venta.nombre_cliente || 'Cliente General'}}</td>
+          <td>{{venta.fecha_venta | date:'dd/MM/yyyy HH:mm'}}</td>
+          <td>{{venta.total | currency:'Q':'symbol':'1.2-2'}}</td>
+          <td>
+            <span class="status-badge" [ngClass]="{
+                'status-completed': venta.estado_pago === 'C',
+                'status-pending': venta.estado_pago === 'P',
+                'status-cancelled': venta.estado_pago === 'A'
+              }">
+              {{venta.estado_pago === 'C' ? 'Completada' :
+              venta.estado_pago === 'P' ? 'Pendiente' : 'Anulada'}}
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center">
+            <div class="empty-state">
+              <i class="pi pi-shopping-cart" style="font-size: 3rem; color: #9ca3af;"></i>
+              <p class="mt-2 text-gray-500">No se encontraron ventas</p>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
 </div>
-<div *ngIf="loading">Cargando...</div>
-<table *ngIf="!loading && ventas.length">
-  <thead><tr><th>ID</th><th>Fecha</th><th>Total</th><th>Estado</th></tr></thead>
-  <tbody>
-    <tr *ngFor="let v of ventas"><td>{{v.id_venta}}</td><td>{{v.fecha_venta}}</td><td>{{v.total}}</td><td>{{v.estado_pago}}</td></tr>
-  </tbody>
-</table>
-<div *ngIf="!loading && !ventas.length">No hay datos</div>
+
+<!-- Dialog Nueva Venta -->
+<p-dialog [(visible)]="displayDialog" header="Nueva Venta" [modal]="true" [style]="{width: '800px'}" [draggable]="false"
+  [resizable]="false">
+
+  <div class="p-fluid">
+    <!-- Cliente -->
+    <div class="p-field mb-3">
+      <label>Cliente (Opcional)</label>
+      <div>
+        <p-selectButton [options]="clientes" [(ngModel)]="nuevaVenta.id_cliente" optionLabel="USUARIO"
+          optionValue="ID_USUARIO">
+        </p-selectButton>
+      </div>
+    </div>
+
+
+    <!-- Agregar Producto -->
+    <div class="p-grid mb-3">
+      <div class="p-col-7">
+        <label>Producto</label>
+        <div class="p-inputgroup">
+          <input type="text" pInputText [(ngModel)]="productoBuscado" placeholder="Buscar producto..." />
+          <button pButton type="button" icon="pi pi-search" (click)="buscarProducto()"></button>
+        </div>
+        <div *ngIf="productosFiltrados.length > 0" class="product-list">
+          <div *ngFor="let producto of productosFiltrados" class="product-item" (click)="seleccionarProducto(producto)">
+            <span>{{producto.nombre}}</span>
+            <span>Q{{producto.precio_venta}}</span>
+          </div>
+        </div>
+      </div>
+      <div class="p-col-3">
+        <label>Cantidad</label>
+        <p-inputNumber [(ngModel)]="cantidad" [min]="1" [showButtons]="true"></p-inputNumber>
+      </div>
+      <div class="p-col-2 flex align-items-end">
+        <button pButton type="button" icon="pi pi-plus" class="p-button-success w-full" (click)="agregarProducto()"
+          [disabled]="!selectedProducto">
+        </button>
+      </div>
+    </div>
+
+    <!-- Lista de Productos -->
+    <div class="products-list mb-3" *ngIf="nuevaVenta.detalles.length > 0">
+      <h3>Productos en la venta</h3>
+      <p-table [value]="nuevaVenta.detalles" styleClass="p-datatable-sm">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio Unit.</th>
+            <th>Subtotal</th>
+            <th style="width: 60px;"></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-detalle let-i="rowIndex">
+          <tr>
+            <td>{{detalle.nombre_producto}}</td>
+            <td>{{detalle.cantidad}}</td>
+            <td>{{detalle.precio_unitario | currency:'Q':'symbol':'1.2-2'}}</td>
+            <td>{{(detalle.cantidad * detalle.precio_unitario) | currency:'Q':'symbol':'1.2-2'}}</td>
+            <td>
+              <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
+                (click)="eliminarDetalle(i)">
+              </button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <!-- Totales -->
+    <div class="totales-section" *ngIf="nuevaVenta.detalles.length > 0">
+      <div class="total-row">
+        <span>Subtotal:</span>
+        <span class="total-value">{{calcularSubtotal() | currency:'Q':'symbol':'1.2-2'}}</span>
+      </div>
+      <div class="total-row">
+        <span>IVA (13%):</span>
+        <span class="total-value">{{calcularIVA() | currency:'Q':'symbol':'1.2-2'}}</span>
+      </div>
+      <div class="total-row total-final">
+        <span>TOTAL:</span>
+        <span class="total-value">{{calcularTotal() | currency:'Q':'symbol':'1.2-2'}}</span>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <button pButton type="button" label="Cancelar" icon="pi pi-times" class="p-button-text"
+      (click)="displayDialog = false">
+    </button>
+    <button pButton type="button" label="Registrar Venta" icon="pi pi-check" class="p-button-success"
+      [disabled]="nuevaVenta.detalles.length === 0 || loading" (click)="registrarVenta()">
+    </button>
+  </ng-template>
+</p-dialog>

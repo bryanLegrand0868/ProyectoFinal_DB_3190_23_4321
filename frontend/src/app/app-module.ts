@@ -42,6 +42,9 @@ import { ErrorInterceptor } from './shared/interceptors/error.interceptor';
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { CheckboxModule } from 'primeng/checkbox';
+import { RadioButtonModule } from 'primeng/radiobutton';
+import { SelectButtonModule } from 'primeng/selectbutton';
 
 
 @NgModule({
@@ -83,7 +86,12 @@ import { InputNumberModule } from 'primeng/inputnumber';
     ProgressSpinnerModule,
     MenuModule,
     DialogModule,
-    ProgressSpinnerModule
+    CheckboxModule,
+    RadioButtonModule,
+    SelectButtonModule,
+    InputNumberModule,
+    FormsModule,
+    ButtonModule
   ],
   providers: [
     MessageService,

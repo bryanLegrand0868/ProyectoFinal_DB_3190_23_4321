@@ -1,170 +1,262 @@
-<!-- dashboard.component.html -->
-<div class="p-grid p-m-0 p-p-3" *ngIf="!loading; else loadingTemplate">
-  <!-- Total Ventas -->
-  <div class="p-col-12 p-md-6 p-lg-3 p-mb-3">
-    <p-card header="Ventas Totales" subheader="Este mes" [style]="{'height': '100%'}">
-      <div class="stat-card">
-        <i class="pi pi-shopping-cart" style="font-size: 2rem; color: #4CAF50"></i>
-        <div class="stat-value">{{ stats.totalSales | currency:'Q':'symbol':'1.2-2' }}</div>
-        <div class="stat-desc" [ngClass]="{'positive': stats.salesGrowth >= 0, 'negative': stats.salesGrowth < 0}">
-          <i [class]="stats.salesGrowth >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"></i>
-          {{ stats.salesGrowth | number:'1.0-1' }}% vs mes anterior
+<p-toast></p-toast>
+
+<div class="dashboard-container" *ngIf="!loading; else loadingTemplate">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <h1 class="dashboard-title">
+      <i class="pi pi-chart-line"></i>
+      Dashboard Administrativo
+    </h1>
+    <p class="dashboard-subtitle">Resumen general del sistema</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="p-grid stats-grid">
+    <!-- Total Ventas -->
+    <div class="p-col-12 p-md-6 p-lg-3">
+      <div class="stat-card stat-card-sales">
+        <div class="stat-card-icon">
+          <i class="pi pi-shopping-cart"></i>
+        </div>
+        <div class="stat-card-content">
+          <div class="stat-card-label">Ventas Totales</div>
+          <div class="stat-card-value">{{ stats.totalSales | currency:'Q':'symbol':'1.2-2' }}</div>
+          <div class="stat-card-growth" [ngClass]="{'positive': stats.salesGrowth >= 0, 'negative': stats.salesGrowth < 0}">
+            <i [class]="stats.salesGrowth >= 0 ? 'pi pi-arrow-up' : 'pi pi-arrow-down'"></i>
+            {{ stats.salesGrowth | number:'1.0-1' }}% vs mes anterior
+          </div>
         </div>
       </div>
-    </p-card>
-  </div>
+    </div>
 
-  <!-- Productos en Inventario -->
-  <div class="p-col-12 p-md-6 p-lg-3 p-mb-3">
-    <p-card header="Productos" subheader="En inventario" [style]="{'height': '100%'}">
-      <div class="stat-card">
-        <i class="pi pi-box" style="font-size: 2rem; color: #2196F3"></i>
-        <div class="stat-value">{{ stats.totalProducts | number }}</div>
-        <div class="stat-desc" [ngClass]="{'negative': stats.lowStockItems > 0}">
-          {{ stats.lowStockItems }} con bajo stock
+    <!-- Productos -->
+    <div class="p-col-12 p-md-6 p-lg-3">
+      <div class="stat-card stat-card-products">
+        <div class="stat-card-icon">
+          <i class="pi pi-box"></i>
+        </div>
+        <div class="stat-card-content">
+          <div class="stat-card-label">Productos</div>
+          <div class="stat-card-value">{{ stats.totalProducts | number }}</div>
+          <div class="stat-card-desc" [ngClass]="{'warning': stats.lowStockItems > 0}">
+            <i class="pi pi-exclamation-triangle" *ngIf="stats.lowStockItems > 0"></i>
+            {{ stats.lowStockItems }} con bajo stock
+          </div>
         </div>
       </div>
-    </p-card>
-  </div>
+    </div>
 
-  <!-- Clientes -->
-  <div class="p-col-12 p-md-6 p-lg-3 p-mb-3">
-    <p-card header="Clientes" subheader="Registrados" [style]="{'height': '100%'}">
-      <div class="stat-card">
-        <i class="pi pi-users" style="font-size: 2rem; color: #9C27B0"></i>
-        <div class="stat-value">{{ stats.totalCustomers | number }}</div>
-        <div class="stat-desc" [ngClass]="{'positive': stats.newCustomers > 0}">
-          +{{ stats.newCustomers | number }} nuevos este mes
+    <!-- Clientes -->
+    <div class="p-col-12 p-md-6 p-lg-3">
+      <div class="stat-card stat-card-customers">
+        <div class="stat-card-icon">
+          <i class="pi pi-users"></i>
+        </div>
+        <div class="stat-card-content">
+          <div class="stat-card-label">Clientes</div>
+          <div class="stat-card-value">{{ stats.totalCustomers | number }}</div>
+          <div class="stat-card-desc positive">
+            <i class="pi pi-plus"></i>
+            {{ stats.newCustomers | number }} nuevos este mes
+          </div>
         </div>
       </div>
-    </p-card>
-  </div>
+    </div>
 
-  <!-- Pedidos Pendientes -->
-  <div class="p-col-12 p-md-6 p-lg-3 p-mb-3">
-    <p-card header="Pedidos" subheader="Pendientes" [style]="{'height': '100%'}">
-      <div class="stat-card">
-        <i class="pi pi-shopping-bag" style="font-size: 2rem; color: #FF9800"></i>
-        <div class="stat-value">{{ stats.pendingOrders | number }}</div>
-        <div class="stat-desc">
-          {{ stats.completedOrders | number }} completados
+    <!-- Pedidos -->
+    <div class="p-col-12 p-md-6 p-lg-3">
+      <div class="stat-card stat-card-orders">
+        <div class="stat-card-icon">
+          <i class="pi pi-shopping-bag"></i>
+        </div>
+        <div class="stat-card-content">
+          <div class="stat-card-label">Pedidos Pendientes</div>
+          <div class="stat-card-value">{{ stats.pendingOrders | number }}</div>
+          <div class="stat-card-desc">
+            {{ stats.completedOrders | number }} completados
+          </div>
         </div>
       </div>
-    </p-card>
+    </div>
   </div>
 
-  <!-- Gráfico de Ventas -->
-  <div class="p-col-12 p-lg-8 p-mb-3">
-    <p-card header="Ventas Mensuales" [style]="{'height': '100%'}">
-      <p-chart type="line" [data]="salesData" [options]="chartOptions" style="height: 300px"></p-chart>
-    </p-card>
-  </div>
+  <!-- Charts and Quick Actions -->
+  <div class="p-grid">
+    <!-- Sales Chart -->
+    <div class="p-col-12 p-lg-8">
+      <p-card header="Ventas Mensuales" styleClass="chart-card">
+        <p-chart type="line" [data]="salesData" [options]="chartOptions" height="350"></p-chart>
+      </p-card>
+    </div>
 
-  <!-- Últimas Ventas -->
-  <div class="p-col-12 p-lg-4 p-mb-3">
-    <p-card header="Últimas Ventas">
-      <p-table [value]="stats.recentSales" [scrollable]="true" scrollHeight="300px" [rows]="5" [paginator]="true">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>ID</th>
-            <th>Cliente</th>
-            <th>Total</th>
-            <th>Estado</th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-sale>
-          <tr>
-            <td>{{ sale.id }}</td>
-            <td>{{ sale.customerName }}</td>
-            <td>{{ sale.total | currency:'Q':'symbol':'1.2-2' }}</td>
-            <td>
-              <span [class]="'sale-status ' + getStatusClass(sale.status)">
-                {{ sale.status | titlecase }}
-              </span>
-            </td>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="emptymessage">
-          <tr>
-            <td colspan="4" class="text-center">No hay ventas recientes</td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </p-card>
+    <!-- Quick Actions -->
+    <div class="p-col-12 p-lg-4">
+      <p-card header="Acciones Rápidas" styleClass="actions-card">
+        <div class="quick-actions">
+          <button pButton 
+                  type="button" 
+                  label="Ver Productos" 
+                  icon="pi pi-box" 
+                  class="p-button-outlined w-full mb-2"
+                  (click)="loadProducts()">
+          </button>
+          <button pButton 
+                  type="button" 
+                  label="Ver Clientes" 
+                  icon="pi pi-users" 
+                  class="p-button-outlined p-button-info w-full mb-2"
+                  (click)="loadClients()">
+          </button>
+          <button pButton 
+                  type="button" 
+                  label="Ver Pedidos" 
+                  icon="pi pi-shopping-bag" 
+                  class="p-button-outlined p-button-warning w-full mb-2"
+                  (click)="showOrders()">
+          </button>
+          <button pButton 
+                  type="button" 
+                  label="Ver Ventas" 
+                  icon="pi pi-chart-line" 
+                  class="p-button-outlined p-button-help w-full"
+                  (click)="loadSales()">
+          </button>
+        </div>
+      </p-card>
+    </div>
   </div>
 </div>
 
-<!-- dashboard.component.html -->
-<!-- Add these buttons below the existing dashboard content -->
-<div class="p-grid p-mt-4 p-mx-0">
-  <div class="p-col-12 p-md-3 p-mb-2">
-    <button pButton type="button" label="Ver Productos" icon="pi pi-box" class="p-button-success"
-      (click)="showProducts()"></button>
-  </div>
-  <div class="p-col-12 p-md-3 p-mb-2">
-    <button pButton type="button" label="Ver Clientes" icon="pi pi-users" class="p-button-info"
-      (click)="showClients()"></button>
-  </div>
-  <div class="p-col-12 p-md-3 p-mb-2">
-    <button pButton type="button" label="Ver Pedidos" icon="pi pi-shopping-bag"
-      class="p-button-outlined p-button-warning w-full" (click)="showOrders()"></button>
-  </div>
-  <div class="p-col-12 p-md-3 p-mb-2">
-    <button pButton type="button" label="Ver Ventas" icon="pi pi-chart-line"
-      class="p-button-outlined p-button-help w-full" (click)="showSales()"></button>
-  </div>
-</div>
-
-<p-dialog [(visible)]="displayModal" [modal]="true" [style]="{width: '80vw'}" [draggable]="false" [resizable]="false">
+<!-- Modal de Datos -->
+<p-dialog 
+  [(visible)]="displayModal" 
+  [modal]="true" 
+  [style]="{ width: '90vw', maxWidth: '1200px' }"
+  [draggable]="false" 
+  [resizable]="false"
+  [contentStyle]="{ 'max-height': '70vh', 'overflow': 'auto' }"
+  [baseZIndex]="10000"
+  styleClass="data-modal">
+  
   <p-header>
-    <h2>{{modalTitle}}</h2>
+    <div class="modal-header-content">
+      <i class="pi pi-table mr-2"></i>
+      <span class="font-bold text-xl">{{modalTitle}}</span>
+    </div>
   </p-header>
 
-  <p-table [value]="modalData" [loading]="loadingModal" [paginator]="true" [rows]="10" [showCurrentPageReport]="true"
-    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} registros"
-    [rowsPerPageOptions]="[10,25,50]">
+  <div *ngIf="loadingModal" class="loading-overlay">
+    <p-progressSpinner 
+      strokeWidth="4" 
+      animationDuration=".5s"
+      [style]="{width: '50px', height: '50px'}">
+    </p-progressSpinner>
+  </div>
+
+  <p-table 
+    *ngIf="!loadingModal" 
+    [value]="modalData" 
+    [scrollable]="true" 
+    scrollHeight="400px"
+    [rows]="10"
+    [paginator]="true" 
+    [rowsPerPageOptions]="[5,10,25,50]"
+    [globalFilterFields]="getFilterFields()"
+    styleClass="p-datatable-sm p-datatable-striped">
+    
     <ng-template pTemplate="header">
       <tr>
-        <th *ngFor="let col of modalColumns" [pSortableColumn]="col.field">
+        <th *ngFor="let col of modalColumns" 
+            [pSortableColumn]="col.field"
+            [style.width]="col.width || 'auto'">
           {{col.header}}
           <p-sortIcon [field]="col.field"></p-sortIcon>
         </th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-item>
+    
+    <ng-template pTemplate="body" let-rowData>
       <tr>
         <td *ngFor="let col of modalColumns">
           <ng-container [ngSwitch]="col.type">
             <ng-container *ngSwitchCase="'currency'">
-              {{getNestedValue(item, col.field) | currency:'Q':'symbol':'1.2-2'}}
+              {{formatCellValue(rowData, col.field, 'currency')}}
             </ng-container>
             <ng-container *ngSwitchCase="'date'">
-              {{getNestedValue(item, col.field) | date:'short'}}
+              {{formatCellValue(rowData, col.field, 'date')}}
             </ng-container>
             <ng-container *ngSwitchCase="'status'">
-              <span
-                [class]="'customer-badge status-' + (getNestedValue(item, col.field) === 'A' ? 'active' : 'inactive')">
-                {{getNestedValue(item, col.field) === 'A' ? 'Activo' : 'Inactivo'}}
+              <span 
+                class="status-badge" 
+                [ngClass]="getStatusClass(getNestedValue(rowData, col.field))">
+                {{formatCellValue(rowData, col.field, 'status')}}
               </span>
             </ng-container>
             <ng-container *ngSwitchDefault>
-              {{getNestedValue(item, col.field)}}
+              {{getNestedValue(rowData, col.field)}}
             </ng-container>
           </ng-container>
         </td>
       </tr>
     </ng-template>
+    
     <ng-template pTemplate="emptymessage">
       <tr>
-        <td [attr.colspan]="modalColumns.length" class="p-text-center">
-          No se encontraron registros
+        <td [attr.colspan]="modalColumns.length" class="text-center p-4">
+          <div class="empty-state">
+            <i class="pi pi-inbox" style="font-size: 3rem; color: #9ca3af;"></i>
+            <p class="mt-2 text-gray-500">No se encontraron registros</p>
+          </div>
         </td>
       </tr>
     </ng-template>
   </p-table>
+  
+  <ng-template pTemplate="footer">
+    <div class="modal-footer-content">
+      <button 
+        pButton 
+        type="button" 
+        label="Cerrar" 
+        icon="pi pi-times" 
+        class="p-button-text"
+        (click)="displayModal = false">
+      </button>
+      <button 
+        pButton 
+        type="button" 
+        label="Exportar a Excel" 
+        icon="pi pi-file-excel" 
+        class="p-button-success"
+        (click)="exportToExcel()">
+      </button>
+    </div>
+  </ng-template>
 </p-dialog>
+
+<!-- Hidden table for Excel export -->
+<table id="exportTable" style="display: none;">
+  <thead>
+    <tr>
+      <th *ngFor="let col of modalColumns">{{col.header}}</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let item of modalData">
+      <td *ngFor="let col of modalColumns">
+        {{formatCellValue(item, col.field, col.type)}}
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- Loading Template -->
 <ng-template #loadingTemplate>
-  <div class="p-d-flex p-jc-center p-ai-center" style="height: 400px;">
-    <p-progressSpinner></p-progressSpinner>
+  <div class="loading-container">
+    <p-progressSpinner 
+      strokeWidth="4"
+      [style]="{width: '70px', height: '70px'}">
+    </p-progressSpinner>
+    <p class="loading-text">Cargando datos del dashboard...</p>
   </div>
 </ng-template>
