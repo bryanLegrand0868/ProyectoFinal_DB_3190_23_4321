@@ -1,0 +1,129 @@
+<div class="client-layout">
+  <!-- Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <!-- Logo -->
+      <div class="logo-section" (click)="router.navigate(['/inicio'])">
+        <img src="assets/logo-sportswear.png" alt="Sportswear" class="logo" />
+        <span class="brand-name">SportswearGT</span>
+      </div>
+
+      <!-- Search Bar -->
+      <div class="search-section">
+        <div class="search-group">
+          <input
+            type="text"
+            class="search-input"
+            [(ngModel)]="searchQuery"
+            placeholder="Buscar productos..."
+            (keyup.enter)="onSearch()" />
+          <button
+            type="button"
+            class="btn btn-primary search-btn"
+            (click)="onSearch()">
+            🔍
+          </button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="header-actions">
+        <!-- Cart -->
+        <div class="cart-section" (click)="goToCart()">
+          <button type="button" class="btn btn-text cart-btn">
+            🛒
+            <span class="cart-badge" *ngIf="cartItemCount > 0">{{ cartItemCount }}</span>
+          </button>
+          <span class="action-text">Carrito</span>
+        </div>
+
+        <!-- Profile Menu -->
+        <div class="profile-section" (click)="toggleProfileMenu()">
+          <button type="button" class="btn btn-text profile-btn">👤</button>
+          <span class="action-text">{{ getUserName() }}</span>
+
+          <!-- Profile Dropdown -->
+          <div class="profile-menu" *ngIf="isProfileMenuVisible">
+            <ul>
+              <li (click)="goToProfile()">
+                <span class="menu-icon">👤</span>
+                <span>Mi Perfil</span>
+              </li>
+              <li (click)="goToOrders()">
+                <span class="menu-icon">🛍️</span>
+                <span>Mis Pedidos</span>
+              </li>
+              <li class="menu-divider"></li>
+              <li (click)="logout()">
+                <span class="menu-icon">🚪</span>
+                <span>Cerrar Sesión</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Categories -->
+    <nav class="category-nav">
+      <div class="nav-container">
+        <a routerLink="/productos" [queryParams]="{categoria: 'calzado'}" class="nav-link">
+          <span class="nav-icon">👟</span>
+          Calzado Deportivo
+        </a>
+        <a routerLink="/productos" [queryParams]="{categoria: 'ropa-hombre'}" class="nav-link">
+          <span class="nav-icon">👔</span>
+          Ropa Hombre
+        </a>
+        <a routerLink="/productos" [queryParams]="{categoria: 'ropa-mujer'}" class="nav-link">
+          <span class="nav-icon">👗</span>
+          Ropa Mujer
+        </a>
+        <a routerLink="/productos" [queryParams]="{categoria: 'accesorios'}" class="nav-link">
+          <span class="nav-icon">🎒</span>
+          Accesorios
+        </a>
+        <a routerLink="/productos" [queryParams]="{categoria: 'equipamiento'}" class="nav-link">
+          <span class="nav-icon">⚽</span>
+          Equipamiento
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <h4>Contacto</h4>
+        <p>WhatsApp: +502 1234-5678</p>
+        <p>Email: info@sportsweargt.com</p>
+      </div>
+      <div class="footer-section">
+        <h4>Síguenos</h4>
+        <div class="social-links">
+          <a href="#" class="social-link" title="Facebook">
+            📘
+          </a>
+          <a href="#" class="social-link" title="Instagram">
+            📷
+          </a>
+        </div>
+      </div>
+      <div class="footer-section">
+        <h4>Información</h4>
+        <a href="#" class="footer-link">Términos y Condiciones</a>
+        <a href="#" class="footer-link">Política de Privacidad</a>
+        <a href="#" class="footer-link">Cambios y Devoluciones</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 SportswearGT. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+</div>

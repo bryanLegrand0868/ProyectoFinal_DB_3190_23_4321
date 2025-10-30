@@ -1,0 +1,249 @@
+<div class="catalog-container">
+  <!-- Toast messages -->
+  <div class="toast-container" *ngIf="toastMessage">
+    <div class="toast" [class]="toastMessage.type">
+      <span>{{ toastMessage.message }}</span>
+      <button class="toast-close" (click)="closeToast()">&times;</button>
+    </div>
+  </div>
+
+  <div class="catalog-wrapper">
+    <!-- Sidebar de Filtros -->
+    <aside class="filters-sidebar">
+      <div class="filters-header">
+        <h3>Filtros</h3>
+        <button
+          type="button"
+          class="btn btn-text btn-sm"
+          (click)="clearFilters()">
+          Limpiar
+        </button>
+      </div>
+
+      <!-- Búsqueda -->
+      <div class="filter-section">
+        <h4>Buscar</h4>
+        <div class="input-with-icon">
+          <span class="icon">🔍</span>
+          <input
+            type="text"
+            class="form-input"
+            [(ngModel)]="searchQuery"
+            (input)="onSearchChange()"
+            placeholder="Buscar productos..." />
+        </div>
+      </div>
+
+      <!-- Categorías -->
+      <div class="filter-section">
+        <h4>Categoría</h4>
+        <select
+          class="form-select"
+          [(ngModel)]="selectedCategory"
+          (change)="onCategoryChange()">
+          <option value="">Todas las categorías</option>
+          <option *ngFor="let cat of categories" [value]="cat.value">
+            {{ cat.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Marcas -->
+      <div class="filter-section">
+        <h4>Marca</h4>
+        <select
+          class="form-select"
+          [(ngModel)]="selectedBrand"
+          (change)="onBrandChange()">
+          <option value="">Todas las marcas</option>
+          <option *ngFor="let brand of brands" [value]="brand.value">
+            {{ brand.label }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Rango de Precio -->
+      <div class="filter-section">
+        <h4>Precio</h4>
+        <div class="price-range">
+          <input
+            type="range"
+            class="range-slider"
+            [min]="0"
+            [max]="1000"
+            [(ngModel)]="priceRange[0]"
+            (change)="onPriceRangeChange()" />
+          <input
+            type="range"
+            class="range-slider"
+            [min]="0"
+            [max]="1000"
+            [(ngModel)]="priceRange[1]"
+            (change)="onPriceRangeChange()" />
+        </div>
+        <div class="price-labels">
+          <span>Q{{ priceRange[0] }}</span>
+          <span>Q{{ priceRange[1] }}</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="catalog-main">
+      <!-- Header del Catálogo -->
+      <div class="catalog-header">
+        <div class="catalog-info">
+          <h2>Productos</h2>
+          <p class="results-count">
+            {{ filteredProducts.length }} producto(s) encontrado(s)
+          </p>
+        </div>
+
+        <div class="catalog-controls">
+          <!-- Ordenamiento -->
+          <select
+            class="form-select"
+            [(ngModel)]="sortBy"
+            (change)="onSortChange($event)">
+            <option value="">Ordenar por</option>
+            <option *ngFor="let option of sortOptions" [value]="option.value">
+              {{ option.label }}
+            </option>
+          </select>
+
+          <!-- Vista -->
+          <div class="view-toggle">
+            <button
+              type="button"
+              class="btn btn-icon"
+              [class.active]="viewMode === 'grid'"
+              (click)="viewMode = 'grid'">
+              ⊞
+            </button>
+            <button
+              type="button"
+              class="btn btn-icon"
+              [class.active]="viewMode === 'list'"
+              (click)="viewMode = 'list'">
+              ☰
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="loading-container">
+        <div class="spinner"></div>
+        <p>Cargando productos...</p>
+      </div>
+
+      <!-- Grid de Productos -->
+      <div
+        *ngIf="!loading && filteredProducts.length > 0"
+        class="products-container"
+        [class.grid-view]="viewMode === 'grid'"
+        [class.list-view]="viewMode === 'list'">
+
+        <div
+          *ngFor="let product of filteredProducts | slice:first:(first + rows)"
+          class="product-card"
+          (click)="goToProduct(product.id_producto)">
+
+          <div class="product-image-wrapper">
+            <img
+              [src]="getProductImage(product)"
+              [alt]="product.nombre"
+              class="product-image" />
+            <div class="product-overlay">
+              <button
+                type="button"
+                class="btn btn-primary btn-icon"
+                (click)="addToCart(product, $event)"
+                title="Agregar al carrito">
+                🛒
+              </button>
+            </div>
+          </div>
+
+          <div class="product-info">
+            <h4 class="product-name">{{ product.nombre }}</h4>
+            <p class="product-category">{{ product.nombre_categoria || 'General' }}</p>
+            <p class="product-brand">{{ product.nombre_marca || 'Sin marca' }}</p>
+            <div class="product-price">
+              <span class="current-price">{{ formatPrice(product.precio_venta) }}</span>
+            </div>
+
+            <!-- Información adicional en vista de lista -->
+            <div *ngIf="viewMode === 'list'" class="product-description">
+              <p>{{ product.descripcion || 'Sin descripción disponible' }}</p>
+              <div class="product-actions-list">
+                <button
+                  type="button"
+                  class="btn btn-outline btn-sm"
+                  (click)="goToProduct(product.id_producto); $event.stopPropagation()">
+                  Ver Detalles
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary btn-sm"
+                  (click)="addToCart(product, $event)">
+                  🛒 Agregar al Carrito
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estado Vacío -->
+      <div *ngIf="!loading && filteredProducts.length === 0" class="empty-state">
+        <div class="empty-icon">🔍</div>
+        <h3>No se encontraron productos</h3>
+        <p>Intenta ajustar los filtros o realizar una búsqueda diferente</p>
+        <button
+          type="button"
+          class="btn btn-outline"
+          (click)="clearFilters()">
+          Limpiar Filtros
+        </button>
+      </div>
+
+      <!-- Paginación -->
+      <div *ngIf="filteredProducts.length > rows" class="pagination-container">
+        <div class="pagination">
+          <button
+            type="button"
+            class="btn btn-sm"
+            [disabled]="first === 0"
+            (click)="paginate({first: first - rows})">
+            ← Anterior
+          </button>
+
+          <span class="page-info">
+            Página {{ (first / rows) + 1 }} de {{ Math.ceil(filteredProducts.length / rows) }}
+          </span>
+
+          <button
+            type="button"
+            class="btn btn-sm"
+            [disabled]="first + rows >= filteredProducts.length"
+            (click)="paginate({first: first + rows})">
+            Siguiente →
+          </button>
+        </div>
+
+        <div class="rows-per-page">
+          <label>Productos por página:</label>
+          <select
+            class="form-select form-select-sm"
+            [(ngModel)]="rows"
+            (change)="first = 0">
+            <option [value]="12">12</option>
+            <option [value]="24">24</option>
+            <option [value]="48">48</option>
+          </select>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

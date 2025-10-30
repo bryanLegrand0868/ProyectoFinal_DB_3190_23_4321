@@ -1,0 +1,279 @@
+<div class="cart-container">
+  <!-- Toast messages -->
+  <div class="toast-container" *ngIf="toastMessage">
+    <div class="toast" [class]="toastMessage.type">
+      <span>{{ toastMessage.message }}</span>
+      <button class="toast-close" (click)="closeToast()">&times;</button>
+    </div>
+  </div>
+
+  <!-- Confirm Dialog -->
+  <div class="confirm-overlay" *ngIf="showConfirmDialog" (click)="showConfirmDialog = false">
+    <div class="confirm-dialog" (click)="$event.stopPropagation()">
+      <h3>{{ confirmMessage }}</h3>
+      <div class="confirm-actions">
+        <button type="button" class="btn btn-outline" (click)="showConfirmDialog = false">
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-danger" (click)="confirmAction()">
+          Confirmar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="cart-wrapper">
+    <!-- Header del Carrito -->
+    <div class="cart-header">
+      <h1 class="cart-title">
+        <span class="cart-icon">🛒</span>
+        Mi Carrito
+      </h1>
+      <p class="cart-subtitle">{{ cartItems.length }} producto(s) en tu carrito</p>
+    </div>
+
+    <!-- Contenido del Carrito -->
+    <div class="cart-content" *ngIf="cartItems.length > 0">
+      <div class="cart-main">
+        <!-- Lista de Productos -->
+        <div class="cart-items">
+          <div class="cart-items-header">
+            <h3>Productos</h3>
+            <button
+              type="button"
+              class="btn btn-outline btn-danger btn-sm"
+              (click)="clearCart()">
+              🗑️ Vaciar carrito
+            </button>
+          </div>
+
+          <div class="items-list">
+            <div
+              *ngFor="let item of cartItems; trackBy: trackByProduct"
+              class="cart-item">
+
+              <!-- Imagen del producto -->
+              <div class="item-image" (click)="goToProduct(item.id_producto)">
+                <img
+                  [src]="getProductImage(item)"
+                  [alt]="item.nombre"
+                  class="product-img" />
+              </div>
+
+              <!-- Información del producto -->
+              <div class="item-info">
+                <h4 class="item-name" (click)="goToProduct(item.id_producto)">
+                  {{ item.nombre }}
+                </h4>
+
+                <div class="item-details">
+                  <span *ngIf="item.talla" class="item-attribute">
+                    <strong>Talla:</strong> {{ item.talla }}
+                  </span>
+                  <span *ngIf="item.color" class="item-attribute">
+                    <strong>Color:</strong> {{ item.color }}
+                  </span>
+                </div>
+
+                <div class="item-price">
+                  <span class="unit-price">{{ formatPrice(item.precio_venta) }} c/u</span>
+                </div>
+              </div>
+
+              <!-- Controles de cantidad -->
+              <div class="item-quantity">
+                <label>Cantidad</label>
+                <div class="quantity-controls">
+                  <button
+                    type="button"
+                    class="btn btn-outline btn-sm quantity-btn"
+                    [disabled]="item.cantidad <= 1"
+                    (click)="updateQuantity(item, item.cantidad - 1)">
+                    −
+                  </button>
+
+                  <input
+                    type="number"
+                    class="quantity-input"
+                    [(ngModel)]="item.cantidad"
+                    [min]="1"
+                    [max]="99"
+                    (blur)="updateQuantity(item, item.cantidad)" />
+
+                  <button
+                    type="button"
+                    class="btn btn-outline btn-sm quantity-btn"
+                    [disabled]="item.cantidad >= 99"
+                    (click)="updateQuantity(item, item.cantidad + 1)">
+                    +
+                  </button>
+                </div>
+              </div>
+
+              <!-- Total del item -->
+              <div class="item-total">
+                <span class="total-label">Total</span>
+                <span class="total-price">{{ formatPrice(getItemTotal(item)) }}</span>
+              </div>
+
+              <!-- Botón eliminar -->
+              <div class="item-remove">
+                <button
+                  type="button"
+                  class="btn btn-icon btn-danger"
+                  title="Eliminar producto"
+                  (click)="removeItem(item)">
+                  ✕
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Información de Envío -->
+        <div class="shipping-info" *ngIf="!qualifiesForFreeShipping()">
+          <div class="shipping-alert">
+            <span class="alert-icon">ℹ️</span>
+            <span>Agrega {{ formatPrice(getSavingsForFreeShipping()) }} más para envío gratis</span>
+          </div>
+          <div class="shipping-progress">
+            <div
+              class="progress-bar"
+              [style.width.%]="(subtotal / 300) * 100">
+            </div>
+          </div>
+        </div>
+
+        <div class="free-shipping-badge" *ngIf="qualifiesForFreeShipping()">
+          <span class="badge-icon">✓</span>
+          <span>¡Felicitaciones! Tienes envío gratis</span>
+        </div>
+      </div>
+
+      <!-- Sidebar del Resumen -->
+      <div class="cart-summary">
+        <!-- Cupón de Descuento -->
+        <div class="coupon-section">
+          <h4>Código de Descuento</h4>
+          <div class="coupon-input" *ngIf="!appliedCoupon">
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-input"
+                [(ngModel)]="couponCode"
+                placeholder="Ingresa tu código"
+                (keyup.enter)="applyCoupon()" />
+              <button
+                type="button"
+                class="btn btn-primary"
+                (click)="applyCoupon()"
+                [disabled]="!couponCode.trim()">
+                Aplicar
+              </button>
+            </div>
+          </div>
+
+          <!-- Cupón aplicado -->
+          <div class="applied-coupon" *ngIf="appliedCoupon">
+            <div class="coupon-info">
+              <span class="coupon-icon">✓</span>
+              <span>{{ appliedCoupon.description }}</span>
+            </div>
+            <button
+              type="button"
+              class="btn btn-icon btn-text btn-sm"
+              (click)="removeCoupon()">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- Resumen de Totales -->
+        <div class="order-summary">
+          <h4>Resumen del Pedido</h4>
+
+          <div class="summary-line">
+            <span>Subtotal ({{ cartItems.length }} productos)</span>
+            <span>{{ formatPrice(subtotal) }}</span>
+          </div>
+
+          <div class="summary-line" *ngIf="discount > 0">
+            <span>Descuento</span>
+            <span class="discount-amount">-{{ formatPrice(discount) }}</span>
+          </div>
+
+          <div class="summary-line">
+            <span>IVA (13%)</span>
+            <span>{{ formatPrice(iva) }}</span>
+          </div>
+
+          <div class="summary-line">
+            <span>Envío</span>
+            <span *ngIf="shippingCost > 0 && !(appliedCoupon && appliedCoupon.type === 'shipping')">
+              {{ formatPrice(shippingCost) }}
+            </span>
+            <span *ngIf="shippingCost === 0 || (appliedCoupon && appliedCoupon.type === 'shipping')"
+                  class="free-text">
+              Gratis
+            </span>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-total">
+            <span>Total</span>
+            <span class="total-amount">{{ formatPrice(total) }}</span>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="action-buttons">
+            <button
+              type="button"
+              class="btn btn-outline continue-btn"
+              (click)="continueShopping()">
+              Continuar Comprando
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-primary checkout-btn"
+              (click)="proceedToCheckout()">
+              💳 Proceder al Pago
+            </button>
+          </div>
+        </div>
+
+        <!-- Información Adicional -->
+        <div class="additional-info">
+          <div class="info-item">
+            <span class="info-icon">🛡️</span>
+            <span>Compra 100% segura</span>
+          </div>
+          <div class="info-item">
+            <span class="info-icon">🔄</span>
+            <span>30 días para cambios</span>
+          </div>
+          <div class="info-item">
+            <span class="info-icon">🚚</span>
+            <span>Envío en 24-48 horas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estado vacío -->
+    <div class="empty-cart" *ngIf="cartItems.length === 0">
+      <div class="empty-content">
+        <div class="empty-icon">🛒</div>
+        <h3>Tu carrito está vacío</h3>
+        <p>Explora nuestros productos y encuentra lo que necesitas</p>
+        <button
+          type="button"
+          class="btn btn-primary shop-now-btn"
+          (click)="continueShopping()">
+          Ir a Comprar →
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

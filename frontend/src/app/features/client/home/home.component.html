@@ -1,0 +1,158 @@
+<div class="home-container">
+  <!-- Toast messages -->
+  <div class="toast-container" *ngIf="toastMessage">
+    <div class="toast" [class]="toastMessage.type">
+      <span>{{ toastMessage.message }}</span>
+      <button class="toast-close" (click)="closeToast()">&times;</button>
+    </div>
+  </div>
+
+  <!-- Banner de Ofertas -->
+  <section class="banner-section">
+    <div class="banner-carousel">
+      <div
+        *ngFor="let banner of bannerOffers; let i = index"
+        class="banner-slide"
+        [class.active]="i === currentBannerIndex"
+        (click)="goToBannerLink(banner.link)">
+        <div class="banner-overlay"></div>
+        <img [src]="banner.imagen" [alt]="banner.titulo" class="banner-image" />
+        <div class="banner-content">
+          <h1 class="banner-title">{{ banner.titulo }}</h1>
+          <p class="banner-subtitle">{{ banner.subtitulo }}</p>
+          <button type="button" class="btn btn-primary banner-btn">Ver Ofertas</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Indicadores del banner -->
+    <div class="banner-indicators">
+      <span
+        *ngFor="let banner of bannerOffers; let i = index"
+        class="indicator"
+        [class.active]="i === currentBannerIndex"
+        (click)="currentBannerIndex = i">
+      </span>
+    </div>
+  </section>
+
+  <!-- Categorías Destacadas -->
+  <section class="categories-section">
+    <div class="container">
+      <h2 class="section-title">Compra por Categoría</h2>
+      <div class="categories-grid">
+        <div
+          *ngFor="let category of categories"
+          class="category-card"
+          (click)="goToCategory(category.categoria)">
+          <div class="category-image-wrapper">
+            <img [src]="category.imagen" [alt]="category.nombre" class="category-image" />
+            <div class="category-overlay">
+              <h3 class="category-name">{{ category.nombre }}</h3>
+              <button type="button" class="btn btn-light category-btn">Ver Productos</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Productos Destacados -->
+  <section class="featured-products-section">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title">Productos Destacados</h2>
+        <button
+          type="button"
+          class="btn btn-outline"
+          (click)="router.navigate(['/productos'])">
+          Ver Todos
+        </button>
+      </div>
+
+      <div *ngIf="loading" class="loading-container">
+        <div class="spinner"></div>
+      </div>
+
+      <div *ngIf="!loading" class="products-grid">
+        <div
+          *ngFor="let product of featuredProducts"
+          class="product-card">
+          <div class="product-image-wrapper" (click)="goToProduct(product.id_producto)">
+            <img
+              [src]="getProductImage(product)"
+              [alt]="product.nombre"
+              class="product-image" />
+            <div class="product-actions">
+              <button
+                type="button"
+                class="btn btn-icon btn-secondary btn-sm"
+                title="Vista rápida"
+                (click)="quickViewProduct(product); $event.stopPropagation()">
+                👁️
+              </button>
+              <button
+                type="button"
+                class="btn btn-icon btn-success btn-sm"
+                title="Agregar al carrito"
+                (click)="addToCart(product); $event.stopPropagation()">
+                🛒
+              </button>
+            </div>
+          </div>
+          <div class="product-info">
+            <h4 class="product-name">{{ product.nombre }}</h4>
+            <p class="product-category">{{ product.nombre_categoria }}</p>
+            <div class="product-price">
+              <span class="current-price">{{ formatPrice(product.precio_venta) }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Beneficios -->
+  <section class="benefits-section">
+    <div class="container">
+      <div class="benefits-grid">
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            🚚
+          </div>
+          <div class="benefit-content">
+            <h4>Envío Gratis</h4>
+            <p>En compras mayores a Q300</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            🔄
+          </div>
+          <div class="benefit-content">
+            <h4>30 Días de Garantía</h4>
+            <p>Cambios y devoluciones</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            🛡️
+          </div>
+          <div class="benefit-content">
+            <h4>Pago Seguro</h4>
+            <p>Protección en todas las transacciones</p>
+          </div>
+        </div>
+        <div class="benefit-item">
+          <div class="benefit-icon">
+            📞
+          </div>
+          <div class="benefit-content">
+            <h4>Soporte 24/7</h4>
+            <p>Atención al cliente siempre disponible</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
