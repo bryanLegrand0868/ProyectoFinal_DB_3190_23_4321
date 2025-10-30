@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { body } = require('express-validator');
 const orderController = require('../controllers/order.controller');
-const { authenticateJWT } = require('../middlewares/auth.middleware');
+const { authenticateJWT, authorizeRoles } = require('../middlewares/auth.middleware');
 
 router.post('/',
   authenticateJWT,
@@ -26,6 +26,21 @@ router.get('/my-orders',
 router.get('/:id_pedido/tracking',
   authenticateJWT,
   orderController.getOrderTracking
+);
+
+router.put('/:id_pedido/status',
+  authenticateJWT,
+  authorizeRoles('Administrador', 'Gerente General', 'Gerente Sucursal'),
+  [
+    body('estado')
+      .isIn(['PENDIENTE', 'PROCESANDO', 'ENVIADO', 'ENTREGADO', 'CANCELADO'])
+      .withMessage('Estado inválido'),
+    body('id_sucursal_despacho')
+      .optional()
+      .isNumeric()
+      .withMessage('ID de sucursal debe ser numérico')
+  ],
+  orderController.updateOrderStatus
 );
 
 module.exports = router;

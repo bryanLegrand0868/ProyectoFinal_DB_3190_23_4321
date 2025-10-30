@@ -1,0 +1,100 @@
+<div class="cliente-layout">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <!-- Logo -->
+      <div class="logo" (click)="goToHome()">
+        <span class="logo-icon">🛍️</span>
+        <span>SportSwear</span>
+      </div>
+
+      <!-- Barra de búsqueda -->
+      <div class="search-bar">
+        <input
+          type="text"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="onSearch()"
+          placeholder="Buscar productos..."
+          class="search-input"
+        />
+        <button class="search-button" (click)="onSearch()">
+          🔍
+        </button>
+      </div>
+
+      <!-- Menú de navegación -->
+      <nav class="nav-menu">
+        <a class="nav-link" (click)="goToHome()">
+          🏠 Inicio
+        </a>
+        <a class="nav-link" (click)="goToProducts()">
+          📦 Productos
+        </a>
+        <a class="nav-link" (click)="goToOrders()">
+          📋 Mis Pedidos
+        </a>
+      </nav>
+
+      <!-- Carrito y Usuario -->
+      <div class="header-actions">
+        <!-- Carrito -->
+        <div class="cart-icon" (click)="goToCart()">
+          <span class="icon">🛒</span>
+          <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+        </div>
+
+        <!-- Usuario -->
+        <div class="user-menu" (click)="toggleUserMenu()">
+          <span class="icon">👤</span>
+          <span class="user-name">{{ currentUser?.usuario || 'Usuario' }}</span>
+          <span class="arrow">▼</span>
+
+          <!-- Dropdown menu -->
+          <div class="user-dropdown" *ngIf="showUserMenu">
+            <div class="dropdown-item" (click)="goToProfile()">
+              👤 Mi Perfil
+            </div>
+            <div class="dropdown-item" (click)="goToOrders()">
+              📦 Mis Pedidos
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item logout" (click)="logout()">
+              🚪 Cerrar Sesión
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido Principal - AQUÍ ES DONDE SE RENDERIZARÁN LOS COMPONENTES HIJOS -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <h4>Sobre Nosotros</h4>
+        <p>Tu tienda de deportes en línea</p>
+      </div>
+      <div class="footer-section">
+        <h4>Contacto</h4>
+        <p>Email: info@sportswear.com</p>
+        <p>Tel: +502 2367-3000</p>
+      </div>
+      <div class="footer-section">
+        <h4>Síguenos</h4>
+        <div class="social-icons">
+          <span>📘</span>
+          <span>🐦</span>
+          <span>📷</span>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 SportSwear. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+</div>

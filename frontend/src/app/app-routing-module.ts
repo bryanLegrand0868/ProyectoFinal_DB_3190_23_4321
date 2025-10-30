@@ -1,89 +1,117 @@
-import { Routes } from '@angular/router';
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
 import { AuthGuard } from './shared/guards/auth.guard';
+import { RoleGuard } from './shared/guards/role.guard';
 import { LoginComponent } from './features/auth/components/login/login.component';
 import { DashboardComponent } from './features/auth/components/dashboard/dashboard.component';
 import { VentasComponent } from './features/auth/components/ventas/ventas.component';
-import { ProductosComponent } from './features/auth/components/productos/productos.component';
 import { InventarioComponent } from './features/auth/components/inventario/inventario.component';
-import { ClientesComponent } from './features/auth/components/clientes/clientes.component';
 import { PedidosComponent } from './features/auth/components/pedidos/pedidos.component';
 import { ReportesComponent } from './features/auth/components/reportes/reportes.component';
 import { AdminComponent } from './features/auth/components/admin/admin.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  // Ruta por defecto - redirige basado en autenticación
+  { 
+    path: '', 
+    redirectTo: '/login', 
+    pathMatch: 'full' 
+  },
 
+  // Login - accesible sin autenticación
   {
     path: 'login',
     component: LoginComponent
   },
 
+  // Dashboard principal - solo para empleados/administradores
   {
     path: 'dashboard',
     component: DashboardComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['Administrador', 'Cliente'] }, // AuthGuard can use esto para validar acceso por rol
+    canActivate: [AuthGuard, RoleGuard],
+    data: { 
+      roles: ['Administrador', 'Gerente General', 'Gerente Sucursal', 'Vendedor', 'Bodeguero', 'Contador'] 
+    }
   },
 
-  // Rutas principales del sistema (carga perezosa de componentes; crear componentes según convenga)
+  // Rutas del sistema administrativo
   {
     path: 'ventas',
     component: VentasComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['Administrador', 'Vendedor', 'Gerente Sucursal'] },
+    canActivate: [AuthGuard, RoleGuard],
+    data: { 
+      roles: ['Administrador', 'Vendedor', 'Gerente Sucursal', 'Gerente General'] 
+    }
   },
 
-  {
+  /*{
     path: 'productos',
-    component: ProductosComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['Administrador', 'Gerente General', 'Gerente Sucursal', 'Bodeguero'] },
-  },
+    loadChildren: () => import('./modules/productos.module').then(m => m.ProductosModule),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { 
+      roles: ['Administrador', 'Gerente General', 'Gerente Sucursal', 'Bodeguero'] 
+    }
+  },*/
 
   {
     path: 'inventario',
     component: InventarioComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['Administrador', 'Bodeguero', 'Gerente Sucursal'] },
-  },
-
-  {
-    path: 'clientes',
-    component: ClientesComponent,
-    canActivate: [AuthGuard],
-    data: {
-      roles: [
-        'Administrador',
-        'Gerente General',
-        'Gerente Sucursal',
-        'Vendedor',
-        'Cliente',
-      ],
-    },
+    canActivate: [AuthGuard, RoleGuard],
+    data: { 
+      roles: ['Administrador', 'Bodeguero', 'Gerente Sucursal', 'Gerente General'] 
+    }
   },
 
   {
     path: 'pedidos',
     component: PedidosComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['Administrador', 'Cliente', 'Gerente Sucursal'] },
+    canActivate: [AuthGuard, RoleGuard],
+    data: { 
+      roles: ['Administrador', 'Gerente Sucursal', 'Gerente General'] 
+    }
   },
 
-  // Reportes gerenciales mínimos (al menos 3): ventas, top clientes, inventario bajo
   {
     path: 'reportes',
     component: ReportesComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['Administrador', 'Gerente General', 'Contador'] },
+    canActivate: [AuthGuard, RoleGuard],
+    data: { 
+      roles: ['Administrador', 'Gerente General', 'Contador'] 
+    }
   },
 
-  // Área de administración (solo Admin)
+  // Área de administración - solo administradores
   {
     path: 'admin',
     component: AdminComponent,
-    canActivate: [AuthGuard],
-    data: { roles: ['Administrador'] },
+    canActivate: [AuthGuard, RoleGuard],
+    data: { 
+      roles: ['Administrador'] 
+    }
   },
 
-  { path: '**', redirectTo: 'dashboard' },
+  // Módulo de clientes (e-commerce) - carga lazy
+  {
+    path: 'tienda',
+    loadChildren: () => import('./module/clientes.module').then(m => m.ClientesModule),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { 
+      roles: ['Cliente'] 
+    }
+  },
+
+  // Ruta comodín - redirige a login si no está autenticado, sino al dashboard apropiado
+  { 
+    path: '**', 
+    redirectTo: '/login' 
+  }
 ];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes, {
+    enableTracing: false, // Cambiar a true para debug de rutas
+    onSameUrlNavigation: 'reload'
+  })],
+  exports: [RouterModule]
+})
+export class AppRoutingModule { }

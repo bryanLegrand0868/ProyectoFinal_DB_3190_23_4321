@@ -20,7 +20,7 @@ export class DashboardComponent implements OnInit {
     newCustomers: 0,
     pendingOrders: 0,
     completedOrders: 0,
-    monthlySales: [],
+    monthlySales: this.getDefaultMonthlyData(),
     recentSales: []
   };
 
@@ -41,17 +41,31 @@ export class DashboardComponent implements OnInit {
   ) { }
 
   ngOnInit() {
+    console.log('📊 Dashboard initializing...');
     this.initChartOptions();
     this.loadCountry();
     this.setupChartOptions();
     this.loadDashboardData();
   }
 
+  /**
+   * Obtener datos mensuales por defecto
+   */
+  private getDefaultMonthlyData() {
+    const months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    return months.map(month => ({ month, amount: 0 }));
+  }
+
   loadCountry() {
-    const saved = localStorage.getItem('selectedCountry');
-    if (saved) {
-      const country = JSON.parse(saved);
-      this.selectedCountry = country.code;
+    try {
+      const saved = localStorage.getItem('selectedCountry');
+      if (saved) {
+        const country = JSON.parse(saved);
+        this.selectedCountry = country.code;
+      }
+    } catch (error) {
+      console.error('Error loading country:', error);
+      this.selectedCountry = 'GT';
     }
   }
 
@@ -90,27 +104,47 @@ export class DashboardComponent implements OnInit {
     };
   }
 
-loadDashboardData() {
-  this.loading = true;
-  this.dashboardService.getDashboardStats().subscribe({
-    next: (response: any) => {
-      if (response && response.success) {
-        this.stats = response.data;
-        this.setupSalesChart(response.data.monthlySales);
+  loadDashboardData() {
+    console.log('📈 Loading dashboard data...');
+    this.loading = true;
+    
+    // Usar datos por defecto mientras se cargan los reales
+    this.prepareChartData(this.stats.monthlySales);
+    
+    this.dashboardService.getDashboardStats().subscribe({
+      next: (response: any) => {
+        console.log('✅ Dashboard data loaded:', response);
+        
+        if (response && response.success) {
+          this.stats = {
+            ...this.stats,
+            ...response.data
+          };
+          
+          if (response.data.monthlySales) {
+            this.setupSalesChart(response.data.monthlySales);
+          }
+        } else {
+          console.warn('⚠️ Dashboard response without success flag');
+        }
+        
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('❌ Error loading dashboard data:', error);
+        
+        // Mostrar datos por defecto en caso de error
+        this.loading = false;
+        
+        this.messageService.add({
+          severity: 'warn',
+          summary: 'Advertencia',
+          detail: 'Usando datos por defecto. Verifique la conexión al servidor.',
+          life: 5000
+        });
       }
-      this.loading = false;
-    },
-    error: (error) => {
-      console.error('Error loading dashboard data:', error);
-      this.loading = false;
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'No se pudieron cargar los datos del dashboard'
-      });
-    }
-  });
-}
+    });
+  }
 
   setupChartOptions() {
     this.chartOptions = {
@@ -138,15 +172,23 @@ loadDashboardData() {
       }
     };
   }
+
   setupSalesChart(monthlyData: any[]) {
+    if (!monthlyData || !Array.isArray(monthlyData)) {
+      monthlyData = this.getDefaultMonthlyData();
+    }
+
     this.salesData = {
       labels: monthlyData.map(item => {
+        if (typeof item.month === 'string') {
+          return item.month;
+        }
         const monthNames = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
-        return monthNames[new Date(item.month).getMonth()];
+        return monthNames[new Date(item.month).getMonth()] || 'Mes';
       }),
       datasets: [{
         label: 'Ventas Mensuales (Q)',
-        data: monthlyData.map(item => item.amount),
+        data: monthlyData.map(item => item.amount || 0),
         fill: true,
         backgroundColor: 'rgba(102, 126, 234, 0.1)',
         borderColor: '#667eea',
@@ -160,12 +202,16 @@ loadDashboardData() {
   }
 
   prepareChartData(monthlyData: any[]) {
+    if (!monthlyData || !Array.isArray(monthlyData)) {
+      monthlyData = this.getDefaultMonthlyData();
+    }
+
     this.salesData = {
-      labels: monthlyData.map(item => item.month),
+      labels: monthlyData.map(item => item.month || 'Mes'),
       datasets: [
         {
           label: 'Ventas Mensuales (Q)',
-          data: monthlyData.map(item => item.amount),
+          data: monthlyData.map(item => item.amount || 0),
           fill: true,
           backgroundColor: 'rgba(102, 126, 234, 0.1)',
           borderColor: '#667eea',
@@ -179,70 +225,69 @@ loadDashboardData() {
     };
   }
 
+  // Métodos de carga con manejo mejorado de errores
   loadProducts() {
-    this.loadingModal = true;
-    this.modalTitle = 'Productos';
-    this.dashboardService.getProducts().subscribe({
-      next: (response: any) => {
-        this.modalData = response.success ? response.data : [];
-        this.setupProductColumns();
-        this.displayModal = true;
-        this.loadingModal = false;
-      },
-      error: (error) => {
-        console.error('Error loading products:', error);
-        this.loadingModal = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudieron cargar los productos'
-        });
-      }
-    });
+    this.loadModalData('Productos', () => this.dashboardService.getProducts(), this.setupProductColumns.bind(this));
   }
 
   loadClients() {
+    this.loadModalData('Clientes', () => this.dashboardService.getClients(), this.setupClientColumns.bind(this));
+  }
+
+  loadSales() {
+    this.loadModalData('Ventas', () => this.dashboardService.getSales(), this.setupSalesColumns.bind(this));
+  }
+
+  showOrders() {
+    this.loadModalData('Pedidos Recientes', () => this.dashboardService.getSales(), () => {
+      this.modalColumns = [
+        { field: 'id_venta', header: 'ID' },
+        { field: 'nombre_cliente', header: 'Cliente' },
+        { field: 'fecha_venta', header: 'Fecha', type: 'date' },
+        { field: 'total', header: 'Total', type: 'currency' },
+        { field: 'estado_pago', header: 'Estado', type: 'status' }
+      ];
+    });
+  }
+
+  /**
+   * Método genérico para cargar datos en modal
+   */
+  private loadModalData(title: string, dataLoader: () => any, columnSetup: () => void) {
     this.loadingModal = true;
-    this.modalTitle = 'Clientes';
-    this.dashboardService.getClients().subscribe({
+    this.modalTitle = title;
+    
+    dataLoader().subscribe({
       next: (response: any) => {
-        this.modalData = response.success ? response.data : [];
-        this.setupClientColumns();
+        this.modalData = this.extractDataFromResponse(response);
+        columnSetup();
         this.displayModal = true;
         this.loadingModal = false;
       },
-      error: (error) => {
-        console.error('Error loading clients:', error);
+      error: (error: any) => {
+        console.error(`Error loading ${title.toLowerCase()}:`, error);
         this.loadingModal = false;
+        this.modalData = [];
+        this.displayModal = true;
+        columnSetup();
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: 'No se pudieron cargar los clientes'
+          detail: `No se pudieron cargar ${title.toLowerCase()}`
         });
       }
     });
   }
 
-  loadSales() {
-    this.loadingModal = true;
-    this.modalTitle = 'Ventas';
-    this.dashboardService.getSales().subscribe({
-      next: (response: any) => {
-        this.modalData = response.success ? response.data : [];
-        this.setupSalesColumns();
-        this.displayModal = true;
-        this.loadingModal = false;
-      },
-      error: (error) => {
-        console.error('Error loading sales:', error);
-        this.loadingModal = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudieron cargar las ventas'
-        });
-      }
-    });
+  /**
+   * Extraer datos de la respuesta
+   */
+  private extractDataFromResponse(response: any): any[] {
+    if (!response) return [];
+    if (Array.isArray(response)) return response;
+    if (response.success && Array.isArray(response.data)) return response.data;
+    if (response.data) return Array.isArray(response.data) ? response.data : [response.data];
+    return [];
   }
 
   setupProductColumns() {
@@ -250,17 +295,8 @@ loadDashboardData() {
       { field: 'id_producto', header: 'ID', width: '80px' },
       { field: 'nombre', header: 'Producto' },
       { field: 'nombre_categoria', header: 'Categoría' },
-      {
-        field: 'precio_venta',
-        header: 'Precio',
-        type: 'currency'
-      },
-      {
-        field: 'estado',
-        header: 'Estado',
-        type: 'status',
-        width: '120px'
-      }
+      { field: 'precio_venta', header: 'Precio', type: 'currency' },
+      { field: 'estado', header: 'Estado', type: 'status', width: '120px' }
     ];
   }
 
@@ -269,17 +305,8 @@ loadDashboardData() {
       { field: 'ID_USUARIO', header: 'ID', width: '80px' },
       { field: 'USUARIO', header: 'Usuario' },
       { field: 'NOMBRE_ROL', header: 'Rol' },
-      {
-        field: 'FECHA_CREACION',
-        header: 'Fecha Creación',
-        type: 'date'
-      },
-      {
-        field: 'ESTADO',
-        header: 'Estado',
-        type: 'status',
-        width: '120px'
-      }
+      { field: 'FECHA_CREACION', header: 'Fecha Creación', type: 'date' },
+      { field: 'ESTADO', header: 'Estado', type: 'status', width: '120px' }
     ];
   }
 
@@ -287,53 +314,13 @@ loadDashboardData() {
     this.modalColumns = [
       { field: 'id_venta', header: 'ID' },
       { field: 'nombre_cliente', header: 'Cliente' },
-      {
-        field: 'fecha_venta',
-        header: 'Fecha',
-        type: 'date'
-      },
-      {
-        field: 'total',
-        header: 'Total',
-        type: 'currency'
-      },
-      {
-        field: 'estado_pago',
-        header: 'Estado',
-        type: 'status'
-      }
+      { field: 'fecha_venta', header: 'Fecha', type: 'date' },
+      { field: 'total', header: 'Total', type: 'currency' },
+      { field: 'estado_pago', header: 'Estado', type: 'status' }
     ];
   }
 
-  showOrders() {
-    this.loadingModal = true;
-    this.modalTitle = 'Pedidos Recientes';
-    this.dashboardService.getSales().subscribe({
-      next: (response: any) => {
-        const ordersData = response && response.success ? response.data : [];
-        this.modalData = Array.isArray(ordersData) ? ordersData : [];
-        this.modalColumns = [
-          { field: 'id_venta', header: 'ID' },
-          { field: 'nombre_cliente', header: 'Cliente' },
-          { field: 'fecha_venta', header: 'Fecha', type: 'date' },
-          { field: 'total', header: 'Total', type: 'currency' },
-          { field: 'estado_pago', header: 'Estado', type: 'status' }
-        ];
-        this.displayModal = true;
-        this.loadingModal = false;
-      },
-      error: (error) => {
-        console.error('Error loading orders:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudieron cargar los pedidos'
-        });
-        this.loadingModal = false;
-      }
-    });
-  }
-
+  // Métodos de utilidad existentes...
   getNestedValue(data: any, field: string): any {
     if (!data) return null;
     return field.split('.').reduce((obj, key) =>

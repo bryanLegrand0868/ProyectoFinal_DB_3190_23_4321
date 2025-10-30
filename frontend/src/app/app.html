@@ -1,1 +1,18 @@
-<router-outlet></router-outlet>
+<div class="app-container">
+  <div *ngIf="loading" class="loading-overlay">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+
+  <div class="sidebar" *ngIf="currentUser">
+    <p-menu [model]="menuItems" styleClass="menu-sidebar"></p-menu>
+  </div>
+  
+  <div class="main-content" [ngClass]="{'logged-in': currentUser}">
+    <div class="top-bar" *ngIf="currentUser">
+      <button pButton icon="pi pi-sign-out" label="Cerrar Sesión" (click)="logout()" class="p-button-text"></button>
+    </div>
+    <div class="content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>

@@ -1,22 +1,23 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-import { routes } from './app-routing-module';
 import { BrowserAnimationsModule, provideAnimations } from '@angular/platform-browser/animations';
 
-// Componentes
+// Components
 import { App } from './app';
 import { DashboardComponent } from './features/auth/components/dashboard/dashboard.component';
 import { VentasComponent } from './features/auth/components/ventas/ventas.component';
-import { ProductosComponent } from './features/auth/components/productos/productos.component';
 import { InventarioComponent } from './features/auth/components/inventario/inventario.component';
-import { ClientesComponent } from './features/auth/components/clientes/clientes.component';
 import { PedidosComponent } from './features/auth/components/pedidos/pedidos.component';
 import { ReportesComponent } from './features/auth/components/reportes/reportes.component';
 import { AdminComponent } from './features/auth/components/admin/admin.component';
+import { LoginComponent } from './features/auth/components/login/login.component';
+
+// Modules
+import { ClientesModule } from './module/clientes.module';
 
 // PrimeNG modules
 import { CardModule } from 'primeng/card';
@@ -35,17 +36,17 @@ import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { TooltipModule } from 'primeng/tooltip';
-
-// Interceptors
-import { JwtInterceptor } from './shared/guards/jwt.interceptor';
-import { ErrorInterceptor } from './shared/interceptors/error.interceptor';
-import { LoginComponent } from './features/auth/components/login/login.component';
+import { SliderModule } from 'primeng/slider';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { CheckboxModule } from 'primeng/checkbox';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { SelectButtonModule } from 'primeng/selectbutton';
 
+// Interceptors
+import { JwtInterceptor } from './shared/guards/jwt.interceptor';
+import { ErrorInterceptor } from './shared/interceptors/error.interceptor';
+import { routes } from './app-routing-module';
 
 @NgModule({
   declarations: [
@@ -53,9 +54,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
     LoginComponent,
     DashboardComponent,
     VentasComponent,
-    ProductosComponent,
     InventarioComponent,
-    ClientesComponent,
     PedidosComponent,
     ReportesComponent,
     AdminComponent
@@ -68,6 +67,10 @@ import { SelectButtonModule } from 'primeng/selectbutton';
     FormsModule,
     ReactiveFormsModule,
     RouterModule.forRoot(routes),
+    
+    // Feature Modules
+    ClientesModule,
+    
     // PrimeNG Modules
     ConfirmDialogModule,
     InputNumberModule,
@@ -89,13 +92,13 @@ import { SelectButtonModule } from 'primeng/selectbutton';
     CheckboxModule,
     RadioButtonModule,
     SelectButtonModule,
-    InputNumberModule,
-    FormsModule,
-    ButtonModule
+    SliderModule
   ],
   providers: [
     MessageService,
     provideAnimations(),
+    DatePipe,
+    CurrencyPipe,
     { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true }
   ],

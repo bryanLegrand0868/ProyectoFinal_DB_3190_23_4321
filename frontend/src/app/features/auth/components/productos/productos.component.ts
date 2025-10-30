@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+/** import { Component, OnInit } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 
 // PrimeNG Modules
@@ -46,7 +46,7 @@ export class ProductosComponent implements OnInit {
 
   /**
    * Carga la lista de productos desde el servidor
-   */
+  
   loadProducts() {
     this.loading = true;
     this.productService.getProducts().subscribe({
@@ -64,7 +64,7 @@ export class ProductosComponent implements OnInit {
 
   /**
    * Muestra el diálogo para crear un nuevo producto
-   */
+
   showNewProductDialog() {
     this.selectedProduct = this.getEmptyProduct();
     this.displayDialog = true;
@@ -73,7 +73,7 @@ export class ProductosComponent implements OnInit {
 
   /**
    * Edita un producto existente
-   */
+
   editProduct(product: Producto) {
     this.selectedProduct = { ...product };
     this.displayDialog = true;
@@ -82,7 +82,7 @@ export class ProductosComponent implements OnInit {
 
   /**
    * Guarda un producto (creación o actualización)
-   */
+  
   saveProduct() {
     this.submitted = true;
 
@@ -148,7 +148,7 @@ export class ProductosComponent implements OnInit {
 
   /**
    * Elimina un producto
-   */
+  
   deleteProduct(product: Producto) {
     if (product.id_producto) {
       this.productService.deleteProduct(product.id_producto).subscribe({
@@ -176,7 +176,7 @@ export class ProductosComponent implements OnInit {
 
   /**
    * Exporta la lista de productos a Excel
-   */
+  
   exportExcel() {
     this.http.get(`${environment.apiUrl}/reportes/productos?format=excel`, { responseType: 'blob' })
       .subscribe({
@@ -202,7 +202,7 @@ export class ProductosComponent implements OnInit {
 
   /**
    * Crea un producto vacío
-   */
+  
   private getEmptyProduct(): Producto {
     return {
       nombre: '',
@@ -216,7 +216,7 @@ export class ProductosComponent implements OnInit {
 
   /**
    * Valida si el producto es válido
-   */
+   
   isProductValid(): boolean {
     return (
       this.selectedProduct.nombre?.trim() !== '' &&
@@ -225,3 +225,4 @@ export class ProductosComponent implements OnInit {
     );
   }
 }
+**/

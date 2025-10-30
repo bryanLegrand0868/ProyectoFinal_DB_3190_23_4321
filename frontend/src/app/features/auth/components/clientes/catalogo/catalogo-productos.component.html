@@ -1,0 +1,133 @@
+<div class="catalogo-container">
+  <div class="catalogo-content">
+    <!-- Sidebar con filtros -->
+    <aside class="filters-sidebar">
+      <div class="filters-header">
+        <h3>Filtros</h3>
+        <button class="clear-btn" (click)="clearFilters()">
+          ✖ Limpiar
+        </button>
+      </div>
+
+      <!-- Filtro por categoría -->
+      <div class="filter-section">
+        <label class="filter-label">Categoría</label>
+        <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" class="filter-select">
+          <option [value]="null">Todas las categorías</option>
+          <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.nombre }}</option>
+        </select>
+      </div>
+
+      <!-- Filtro por marca -->
+      <div class="filter-section">
+        <label class="filter-label">Marca</label>
+        <select [(ngModel)]="selectedBrand" (change)="onBrandChange()" class="filter-select">
+          <option [value]="null">Todas las marcas</option>
+          <option *ngFor="let brand of brands" [value]="brand.id">{{ brand.nombre }}</option>
+        </select>
+      </div>
+
+      <!-- Filtro por rango de precio -->
+      <div class="filter-section">
+        <label class="filter-label">
+          Precio: Q{{ priceRange[0] }} - Q{{ priceRange[1] }}
+        </label>
+        <div class="price-inputs">
+          <input type="number" [(ngModel)]="priceRange[0]" (change)="onPriceRangeChange()"
+                 placeholder="Mín" class="price-input">
+          <span>-</span>
+          <input type="number" [(ngModel)]="priceRange[1]" (change)="onPriceRangeChange()"
+                 placeholder="Máx" class="price-input">
+        </div>
+      </div>
+
+      <!-- Búsqueda adicional -->
+      <div class="filter-section">
+        <label class="filter-label">Buscar</label>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="onSearch()"
+          placeholder="Buscar producto..."
+          class="search-input"
+        />
+      </div>
+    </aside>
+
+    <!-- Contenido principal -->
+    <main class="products-main">
+      <!-- Toolbar -->
+      <div class="products-toolbar">
+        <div class="toolbar-left">
+          <h2>Productos</h2>
+          <span class="product-count">
+            {{ filteredProducts.length }} producto(s) encontrado(s)
+          </span>
+        </div>
+
+        <div class="toolbar-right">
+          <!-- Ordenamiento -->
+          <select [(ngModel)]="sortBy" (change)="onSortChange()" class="sort-select">
+            <option *ngFor="let opt of sortOptions" [value]="opt.value">{{ opt.label }}</option>
+          </select>
+
+          <!-- Toggle vista -->
+          <button class="view-toggle-btn" (click)="toggleViewMode()">
+            {{ viewMode === 'grid' ? '☰ Lista' : '⊞ Grid' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading-container" *ngIf="loading">
+        <div class="spinner">⏳ Cargando productos...</div>
+      </div>
+
+      <!-- Grid de productos -->
+      <div class="products-grid" [class.list-view]="viewMode === 'list'" *ngIf="!loading">
+        <div class="product-card" *ngFor="let product of filteredProducts"
+             (click)="viewProductDetail(product.id_producto)">
+          <div class="product-image">
+            <img [src]="product.imagen_url || 'assets/no-image.png'"
+                 [alt]="product.nombre">
+            <div class="product-overlay">
+              <button class="add-cart-btn" (click)="addToCart(product, $event)">
+                🛒 Agregar
+              </button>
+            </div>
+          </div>
+
+          <div class="product-info">
+            <div class="product-badges">
+              <span class="badge badge-category">{{ product.nombre_categoria }}</span>
+              <span class="badge badge-brand">{{ product.nombre_marca }}</span>
+            </div>
+
+            <h4 class="product-name">{{ product.nombre }}</h4>
+
+            <p class="product-description" *ngIf="viewMode === 'list'">
+              {{ product.descripcion }}
+            </p>
+
+            <div class="product-footer">
+              <span class="product-price">Q{{ product.precio_venta | number:'1.2-2' }}</span>
+              <button class="add-btn-list" *ngIf="viewMode === 'list'" (click)="addToCart(product, $event)">
+                🛒 Agregar
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sin resultados -->
+      <div class="empty-state" *ngIf="!loading && filteredProducts.length === 0">
+        <span class="empty-icon">🔍</span>
+        <h3>No se encontraron productos</h3>
+        <p>Intenta ajustar los filtros o buscar con otros términos</p>
+        <button class="clear-filters-btn" (click)="clearFilters()">
+          ✖ Limpiar filtros
+        </button>
+      </div>
+    </main>
+  </div>
+</div>
