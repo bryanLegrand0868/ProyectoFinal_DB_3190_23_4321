@@ -1,12 +1,9 @@
 <div class="checkout-container">
   <div class="checkout-header">
-    <h1>
-      <i class="pi pi-shopping-cart"></i>
-      Finalizar Compra
-    </h1>
-    <button pButton type="button" label="Volver al carrito" icon="pi pi-arrow-left"
-            class="p-button-outlined"
-            (click)="goBack()"></button>
+    <h1>🛒 Finalizar Compra</h1>
+    <button class="back-btn" (click)="goBack()">
+      ← Volver al carrito
+    </button>
   </div>
 
   <div class="checkout-content">
@@ -39,59 +36,58 @@
             <div class="form-grid">
               <div class="form-field full-width">
                 <label>Dirección de Envío *</label>
-                <textarea pInputTextarea
-                          formControlName="direccion_envio"
-                          rows="3"
-                          placeholder="Ingresa tu dirección completa"></textarea>
-                <small class="p-error" *ngIf="checkoutForm.get('direccion_envio')?.invalid && checkoutForm.get('direccion_envio')?.touched">
+                <textarea
+                  formControlName="direccion_envio"
+                  rows="3"
+                  placeholder="Ingresa tu dirección completa"
+                  class="form-textarea"></textarea>
+                <small class="error" *ngIf="checkoutForm.get('direccion_envio')?.invalid && checkoutForm.get('direccion_envio')?.touched">
                   La dirección es requerida (mínimo 10 caracteres)
                 </small>
               </div>
 
               <div class="form-field">
                 <label>Ciudad *</label>
-                <input type="text" pInputText
+                <input type="text"
                        formControlName="ciudad_envio"
-                       placeholder="Ciudad">
-                <small class="p-error" *ngIf="checkoutForm.get('ciudad_envio')?.invalid && checkoutForm.get('ciudad_envio')?.touched">
+                       placeholder="Ciudad"
+                       class="form-input">
+                <small class="error" *ngIf="checkoutForm.get('ciudad_envio')?.invalid && checkoutForm.get('ciudad_envio')?.touched">
                   La ciudad es requerida
                 </small>
               </div>
 
               <div class="form-field">
                 <label>País *</label>
-                <p-dropdown
-                  formControlName="pais_envio"
-                  [options]="countries"
-                  optionLabel="label"
-                  optionValue="value"
-                  placeholder="Selecciona país"
-                  styleClass="w-full">
-                </p-dropdown>
+                <select formControlName="pais_envio" class="form-select">
+                  <option *ngFor="let country of countries" [value]="country.value">{{ country.label }}</option>
+                </select>
               </div>
 
               <div class="form-field">
                 <label>Código Postal</label>
-                <input type="text" pInputText
+                <input type="text"
                        formControlName="codigo_postal"
-                       placeholder="Código postal (opcional)">
+                       placeholder="Código postal (opcional)"
+                       class="form-input">
               </div>
 
               <div class="form-field">
                 <label>Teléfono de Contacto *</label>
-                <input type="tel" pInputText
+                <input type="tel"
                        formControlName="telefono_contacto"
-                       placeholder="+502 1234-5678">
-                <small class="p-error" *ngIf="checkoutForm.get('telefono_contacto')?.invalid && checkoutForm.get('telefono_contacto')?.touched">
+                       placeholder="+502 1234-5678"
+                       class="form-input">
+                <small class="error" *ngIf="checkoutForm.get('telefono_contacto')?.invalid && checkoutForm.get('telefono_contacto')?.touched">
                   Ingresa un teléfono válido
                 </small>
               </div>
             </div>
 
             <div class="form-actions">
-              <button pButton type="button" label="Siguiente" icon="pi pi-arrow-right" iconPos="right"
-                      class="p-button-lg"
-                      (click)="nextStep()"></button>
+              <button type="button" class="next-btn" (click)="nextStep()">
+                Siguiente →
+              </button>
             </div>
           </div>
 
@@ -103,54 +99,18 @@
               <div class="payment-method" *ngFor="let method of paymentMethods"
                    [class.selected]="checkoutForm.value.tipo_pago === method.value"
                    (click)="checkoutForm.patchValue({tipo_pago: method.value})">
-                <i class="pi" [ngClass]="method.icon"></i>
+                <span class="payment-icon">{{ method.icon }}</span>
                 <span>{{ method.label }}</span>
               </div>
             </div>
 
-            <!-- Formulario de tarjeta (solo visual) -->
-            <div class="card-form" *ngIf="checkoutForm.value.tipo_pago === 'TARJETA_CREDITO' || checkoutForm.value.tipo_pago === 'TARJETA_DEBITO'">
-              <div class="form-grid">
-                <div class="form-field full-width">
-                  <label>Número de Tarjeta</label>
-                  <input type="text" pInputText
-                         formControlName="card_number"
-                         placeholder="1234 5678 9012 3456"
-                         maxlength="19">
-                </div>
-
-                <div class="form-field full-width">
-                  <label>Nombre en la Tarjeta</label>
-                  <input type="text" pInputText
-                         formControlName="card_name"
-                         placeholder="NOMBRE APELLIDO">
-                </div>
-
-                <div class="form-field">
-                  <label>Fecha de Vencimiento</label>
-                  <input type="text" pInputText
-                         formControlName="card_expiry"
-                         placeholder="MM/AA"
-                         maxlength="5">
-                </div>
-
-                <div class="form-field">
-                  <label>CVV</label>
-                  <input type="text" pInputText
-                         formControlName="card_cvv"
-                         placeholder="123"
-                         maxlength="4">
-                </div>
-              </div>
-            </div>
-
             <div class="form-actions">
-              <button pButton type="button" label="Anterior" icon="pi pi-arrow-left"
-                      class="p-button-outlined p-button-lg"
-                      (click)="prevStep()"></button>
-              <button pButton type="button" label="Siguiente" icon="pi pi-arrow-right" iconPos="right"
-                      class="p-button-lg"
-                      (click)="nextStep()"></button>
+              <button type="button" class="prev-btn" (click)="prevStep()">
+                ← Anterior
+              </button>
+              <button type="button" class="next-btn" (click)="nextStep()">
+                Siguiente →
+              </button>
             </div>
           </div>
 
@@ -160,7 +120,7 @@
 
             <!-- Resumen de envío -->
             <div class="summary-box">
-              <h3><i class="pi pi-map-marker"></i> Datos de Envío</h3>
+              <h3>📍 Datos de Envío</h3>
               <p><strong>Dirección:</strong> {{ checkoutForm.value.direccion_envio }}</p>
               <p><strong>Ciudad:</strong> {{ checkoutForm.value.ciudad_envio }}</p>
               <p><strong>País:</strong> {{ checkoutForm.value.pais_envio }}</p>
@@ -169,15 +129,13 @@
 
             <!-- Resumen de pago -->
             <div class="summary-box">
-              <h3><i class="pi pi-credit-card"></i> Método de Pago</h3>
-              <p>
-                {{ paymentMethods.find(m => m.value === checkoutForm.value.tipo_pago)?.label }}
-              </p>
+              <h3>💳 Método de Pago</h3>
+              <p>{{ paymentMethods.find(m => m.value === checkoutForm.value.tipo_pago)?.label }}</p>
             </div>
 
             <!-- Productos -->
             <div class="summary-box">
-              <h3><i class="pi pi-shopping-cart"></i> Productos ({{ cartItems.length }})</h3>
+              <h3>🛒 Productos ({{ cartItems.length }})</h3>
               <div class="product-summary-list">
                 <div class="product-summary-item" *ngFor="let item of cartItems">
                   <img [src]="item.imagen_url || 'assets/no-image.png'" [alt]="item.nombre">
@@ -191,13 +149,12 @@
             </div>
 
             <div class="form-actions">
-              <button pButton type="button" label="Anterior" icon="pi pi-arrow-left"
-                      class="p-button-outlined p-button-lg"
-                      (click)="prevStep()"></button>
-              <button pButton type="button" label="Confirmar Pedido" icon="pi pi-check" iconPos="right"
-                      class="p-button-success p-button-lg"
-                      [loading]="loading"
-                      (click)="confirmOrder()"></button>
+              <button type="button" class="prev-btn" (click)="prevStep()">
+                ← Anterior
+              </button>
+              <button type="button" class="confirm-btn" (click)="confirmOrder()" [disabled]="loading">
+                {{ loading ? '⏳ Procesando...' : '✓ Confirmar Pedido' }}
+              </button>
             </div>
           </div>
         </form>
@@ -228,13 +185,9 @@
         </div>
 
         <div class="security-info">
-          <i class="pi pi-shield"></i>
-          <p>Transacción segura y protegida</p>
+          🔒 Transacción segura y protegida
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Toast -->
-  <p-toast></p-toast>
 </div>

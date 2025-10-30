@@ -3,14 +3,12 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CartService, CartItem } from '../../../../shared/services/cart.service';
 import { OrderService } from '../../../../shared/services/order.service';
-import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.css'],
-  standalone: false,
-  providers: [MessageService]
+  standalone: false
 })
 export class CheckoutComponent implements OnInit {
   checkoutForm!: FormGroup;
@@ -26,10 +24,10 @@ export class CheckoutComponent implements OnInit {
 
   // Opciones de pago
   paymentMethods = [
-    { label: 'Tarjeta de Crédito', value: 'TARJETA_CREDITO', icon: 'pi-credit-card' },
-    { label: 'Tarjeta de Débito', value: 'TARJETA_DEBITO', icon: 'pi-wallet' },
-    { label: 'PayPal', value: 'PAYPAL', icon: 'pi-paypal' },
-    { label: 'Transferencia Bancaria', value: 'TRANSFERENCIA', icon: 'pi-building' }
+    { label: 'Tarjeta de Crédito', value: 'TARJETA_CREDITO' },
+    { label: 'Tarjeta de Débito', value: 'TARJETA_DEBITO' },
+    { label: 'PayPal', value: 'PAYPAL' },
+    { label: 'Transferencia Bancaria', value: 'TRANSFERENCIA' }
   ];
 
   // Países disponibles
@@ -46,8 +44,7 @@ export class CheckoutComponent implements OnInit {
     private fb: FormBuilder,
     private router: Router,
     private cartService: CartService,
-    private orderService: OrderService,
-    private messageService: MessageService
+    private orderService: OrderService
   ) {}
 
   ngOnInit(): void {
@@ -85,11 +82,7 @@ export class CheckoutComponent implements OnInit {
     this.cartItems = this.cartService.getCartItems();
 
     if (this.cartItems.length === 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Carrito vacío',
-        detail: 'No hay productos en el carrito'
-      });
+      alert('Carrito vacío - No hay productos en el carrito');
       this.router.navigate(['/cliente/productos']);
       return;
     }
@@ -119,11 +112,7 @@ export class CheckoutComponent implements OnInit {
       );
 
       if (!isValid) {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Datos incompletos',
-          detail: 'Por favor completa todos los campos de envío'
-        });
+        alert('Datos incompletos - Por favor completa todos los campos de envío');
         return;
       }
     }
@@ -147,11 +136,7 @@ export class CheckoutComponent implements OnInit {
    */
   confirmOrder(): void {
     if (this.checkoutForm.invalid) {
-      this.messageService.add({
-        severity: 'error',
-        summary: 'Formulario inválido',
-        detail: 'Por favor completa todos los campos requeridos'
-      });
+      alert('Formulario inválido - Por favor completa todos los campos requeridos');
       return;
     }
 
@@ -177,12 +162,7 @@ export class CheckoutComponent implements OnInit {
       next: (response: any) => {
         this.loading = false;
         if (response.success) {
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Pedido confirmado',
-            detail: 'Tu pedido ha sido registrado exitosamente',
-            life: 5000
-          });
+          alert('Pedido confirmado - Tu pedido ha sido registrado exitosamente');
 
           // Limpiar carrito
           this.cartService.clearCart();
@@ -190,23 +170,15 @@ export class CheckoutComponent implements OnInit {
           // Navegar a mis pedidos
           setTimeout(() => {
             this.router.navigate(['/cliente/mis-pedidos']);
-          }, 2000);
+          }, 1000);
         } else {
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: response.message || 'No se pudo procesar el pedido'
-          });
+          alert('Error - ' + (response.message || 'No se pudo procesar el pedido'));
         }
       },
       error: (error) => {
         this.loading = false;
         console.error('Error al crear pedido:', error);
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo procesar el pedido. Intenta nuevamente.'
-        });
+        alert('Error - No se pudo procesar el pedido. Intenta nuevamente.');
       }
     });
   }

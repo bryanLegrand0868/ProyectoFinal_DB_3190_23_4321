@@ -1,23 +1,19 @@
 <div class="carrito-container">
   <div class="carrito-header">
-    <h1>
-      <i class="pi pi-shopping-cart"></i>
-      Mi Carrito de Compras
-    </h1>
-    <button pButton type="button" label="Vaciar carrito" icon="pi pi-trash"
-            class="p-button-danger p-button-outlined"
-            (click)="confirmClearCart()"
-            [disabled]="isCartEmpty()"></button>
+    <h1>🛒 Mi Carrito de Compras</h1>
+    <button class="clear-cart-btn" (click)="confirmClearCart()" [disabled]="isCartEmpty()">
+      🗑️ Vaciar carrito
+    </button>
   </div>
 
   <!-- Carrito vacío -->
   <div class="empty-cart" *ngIf="isCartEmpty()">
-    <i class="pi pi-shopping-cart"></i>
+    <span class="empty-icon">🛒</span>
     <h2>Tu carrito está vacío</h2>
     <p>Agrega productos para comenzar tu compra</p>
-    <button pButton type="button" label="Ir a comprar" icon="pi pi-shopping-bag"
-            class="p-button-lg p-button-primary"
-            (click)="continueShopping()"></button>
+    <button class="shop-btn" (click)="continueShopping()">
+      🛍️ Ir a comprar
+    </button>
   </div>
 
   <!-- Carrito con productos -->
@@ -34,14 +30,8 @@
         <div class="item-details">
           <h3 class="item-name">{{ item.nombre }}</h3>
           <div class="item-meta">
-            <span class="item-category" *ngIf="item.categoria">
-              <i class="pi pi-tag"></i>
-              {{ item.categoria }}
-            </span>
-            <span class="item-brand" *ngIf="item.marca">
-              <i class="pi pi-bookmark"></i>
-              {{ item.marca }}
-            </span>
+            <span *ngIf="item.categoria">🏷️ {{ item.categoria }}</span>
+            <span *ngIf="item.marca">📌 {{ item.marca }}</span>
           </div>
           <p class="item-price-unit">Precio unitario: Q{{ item.precio_venta | number:'1.2-2' }}</p>
         </div>
@@ -49,17 +39,13 @@
         <div class="item-quantity">
           <label>Cantidad</label>
           <div class="quantity-controls">
-            <button pButton type="button" icon="pi pi-minus"
-                    class="p-button-sm p-button-outlined"
-                    (click)="decrementQuantity(item)"></button>
-            <input type="number" pInputText
+            <button class="qty-btn" (click)="decrementQuantity(item)">-</button>
+            <input type="number"
                    [(ngModel)]="item.cantidad"
                    (change)="updateQuantity(item, item.cantidad)"
                    min="1"
                    class="quantity-input">
-            <button pButton type="button" icon="pi pi-plus"
-                    class="p-button-sm p-button-outlined"
-                    (click)="incrementQuantity(item)"></button>
+            <button class="qty-btn" (click)="incrementQuantity(item)">+</button>
           </div>
         </div>
 
@@ -69,10 +55,7 @@
         </div>
 
         <div class="item-actions">
-          <button pButton type="button" icon="pi pi-trash"
-                  class="p-button-danger p-button-text p-button-sm"
-                  (click)="confirmRemove(item)"
-                  pTooltip="Eliminar producto"></button>
+          <button class="remove-btn" (click)="confirmRemove(item)">🗑️</button>
         </div>
       </div>
     </div>
@@ -84,17 +67,17 @@
       <div class="summary-section">
         <div class="summary-row">
           <span>Subtotal:</span>
-          <span class="summary-value">Q{{ subtotal | number:'1.2-2' }}</span>
+          <span>Q{{ subtotal | number:'1.2-2' }}</span>
         </div>
 
         <div class="summary-row">
           <span>IVA (13%):</span>
-          <span class="summary-value">Q{{ iva | number:'1.2-2' }}</span>
+          <span>Q{{ iva | number:'1.2-2' }}</span>
         </div>
 
         <div class="summary-row">
           <span>Envío:</span>
-          <span class="summary-value">Q{{ shippingCost | number:'1.2-2' }}</span>
+          <span>Q{{ shippingCost | number:'1.2-2' }}</span>
         </div>
 
         <div class="summary-divider"></div>
@@ -106,37 +89,28 @@
       </div>
 
       <div class="summary-info">
-        <i class="pi pi-info-circle"></i>
-        <p>El envío será calculado según tu ubicación en el checkout</p>
+        ℹ️ El envío será calculado según tu ubicación en el checkout
       </div>
 
       <div class="summary-actions">
-        <button pButton type="button" label="Continuar comprando"
-                class="p-button-outlined p-button-lg w-full"
-                (click)="continueShopping()"></button>
+        <button class="continue-shopping-btn" (click)="continueShopping()">
+          ← Continuar comprando
+        </button>
 
-        <button pButton type="button" label="Proceder al pago"
-                icon="pi pi-arrow-right" iconPos="right"
-                class="p-button-lg w-full"
-                (click)="proceedToCheckout()"></button>
+        <button class="checkout-btn" (click)="proceedToCheckout()">
+          Proceder al pago →
+        </button>
       </div>
 
       <!-- Métodos de pago aceptados -->
       <div class="payment-methods">
         <p>Métodos de pago aceptados:</p>
         <div class="payment-icons">
-          <i class="pi pi-credit-card" pTooltip="Tarjetas de crédito"></i>
-          <i class="pi pi-wallet" pTooltip="Tarjetas de débito"></i>
-          <i class="pi pi-paypal" pTooltip="PayPal"></i>
-          <i class="pi pi-building" pTooltip="Transferencia bancaria"></i>
+          <span>💳</span>
+          <span>💰</span>
+          <span>🏦</span>
         </div>
       </div>
     </div>
   </div>
-
-  <!-- Toast -->
-  <p-toast></p-toast>
-
-  <!-- Confirmation Dialog -->
-  <p-confirmDialog></p-confirmDialog>
 </div>

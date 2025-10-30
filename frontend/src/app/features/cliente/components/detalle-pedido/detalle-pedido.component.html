@@ -1,18 +1,20 @@
 <div class="detalle-pedido-container">
   <!-- Header -->
   <div class="detalle-header">
-    <button pButton type="button" icon="pi pi-arrow-left"
-            class="p-button-text p-button-lg"
-            (click)="goBack()"></button>
+    <button type="button"
+            class="btn-text btn-lg"
+            (click)="goBack()">
+      ⬅️ Volver
+    </button>
     <h1>
-      <i class="pi pi-box"></i>
+      <span class="header-icon">📦</span>
       Detalle del Pedido #{{ orderId }}
     </h1>
   </div>
 
   <!-- Loading -->
   <div class="loading-container" *ngIf="loading">
-    <p-progressSpinner></p-progressSpinner>
+    <div class="spinner">⏳ Cargando detalle del pedido...</div>
   </div>
 
   <!-- Contenido del pedido -->
@@ -33,33 +35,33 @@
 
       <div class="info-grid">
         <div class="info-item">
-          <label><i class="pi pi-calendar"></i> Fecha del Pedido</label>
+          <label><span class="info-icon">📅</span> Fecha del Pedido</label>
           <p>{{ order.fecha_pedido | date:'dd/MM/yyyy HH:mm' }}</p>
         </div>
 
         <div class="info-item">
-          <label><i class="pi pi-credit-card"></i> Método de Pago</label>
+          <label><span class="info-icon">💳</span> Método de Pago</label>
           <p>{{ order.tipo_pago?.replace('_', ' ') }}</p>
         </div>
 
         <div class="info-item">
-          <label><i class="pi pi-map-marker"></i> Dirección de Envío</label>
+          <label><span class="info-icon">📍</span> Dirección de Envío</label>
           <p>{{ order.direccion_envio }}</p>
           <p class="secondary">{{ order.ciudad_envio }}, {{ order.pais_envio }}</p>
         </div>
 
         <div class="info-item">
-          <label><i class="pi pi-phone"></i> Teléfono de Contacto</label>
+          <label><span class="info-icon">📞</span> Teléfono de Contacto</label>
           <p>{{ order.telefono_contacto }}</p>
         </div>
 
         <div class="info-item" *ngIf="order.fecha_entrega_estimada">
-          <label><i class="pi pi-truck"></i> Entrega Estimada</label>
+          <label><span class="info-icon">🚚</span> Entrega Estimada</label>
           <p>{{ order.fecha_entrega_estimada | date:'dd/MM/yyyy' }}</p>
         </div>
 
         <div class="info-item" *ngIf="order.fecha_entrega_real">
-          <label><i class="pi pi-check-circle"></i> Entrega Real</label>
+          <label><span class="info-icon">✅</span> Entrega Real</label>
           <p>{{ order.fecha_entrega_real | date:'dd/MM/yyyy' }}</p>
         </div>
       </div>
@@ -69,7 +71,7 @@
       <!-- Productos del pedido -->
       <div class="productos-card">
         <h2>
-          <i class="pi pi-shopping-cart"></i>
+          <span class="header-icon">🛒</span>
           Productos ({{ orderDetails.length }})
         </h2>
 
@@ -123,7 +125,7 @@
       <!-- Tracking del pedido -->
       <div class="tracking-card">
         <h2>
-          <i class="pi pi-map"></i>
+          <span class="header-icon">🗺️</span>
           Seguimiento del Pedido
         </h2>
 
@@ -139,7 +141,7 @@
               </div>
               <p class="timeline-description">{{ track.descripcion }}</p>
               <p class="timeline-location" *ngIf="track.ubicacion">
-                <i class="pi pi-map-marker"></i>
+                <span class="location-icon">📍</span>
                 {{ track.ubicacion }}
               </p>
             </div>
@@ -148,7 +150,7 @@
 
         <!-- Sin tracking -->
         <div class="no-tracking" *ngIf="trackingHistory.length === 0">
-          <i class="pi pi-info-circle"></i>
+          <div class="no-tracking-icon">ℹ️</div>
           <p>Aún no hay información de seguimiento disponible</p>
         </div>
       </div>
@@ -157,15 +159,13 @@
 
   <!-- Sin datos -->
   <div class="empty-state" *ngIf="!loading && !order">
-    <i class="pi pi-exclamation-triangle"></i>
+    <div class="empty-icon">⚠️</div>
     <h2>Pedido no encontrado</h2>
     <p>No se pudo cargar la información del pedido</p>
-    <button pButton type="button" label="Volver a mis pedidos"
-            icon="pi pi-arrow-left"
-            class="p-button-lg"
-            (click)="goBack()"></button>
+    <button type="button"
+            class="btn-lg btn-primary"
+            (click)="goBack()">
+      ⬅️ Volver a mis pedidos
+    </button>
   </div>
-
-  <!-- Toast -->
-  <p-toast></p-toast>
 </div>

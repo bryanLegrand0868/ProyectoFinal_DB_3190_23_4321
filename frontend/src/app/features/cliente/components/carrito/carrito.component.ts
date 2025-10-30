@@ -1,14 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { CartService, CartItem } from '../../../../shared/services/cart.service';
-import { MessageService, ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-carrito',
   templateUrl: './carrito.component.html',
   styleUrls: ['./carrito.component.css'],
-  standalone: false,
-  providers: [MessageService, ConfirmationService]
+  standalone: false
 })
 export class CarritoComponent implements OnInit {
   cartItems: CartItem[] = [];
@@ -19,9 +17,7 @@ export class CarritoComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private cartService: CartService,
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
@@ -67,12 +63,7 @@ export class CarritoComponent implements OnInit {
     }
 
     this.cartService.updateQuantity(item.id_producto, newQuantity);
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Cantidad actualizada',
-      detail: 'La cantidad del producto se actualizó',
-      life: 2000
-    });
+    console.log('Cantidad actualizada');
   }
 
   /**
@@ -93,17 +84,10 @@ export class CarritoComponent implements OnInit {
    * Confirmar eliminación de producto
    */
   confirmRemove(item: CartItem): void {
-    this.confirmationService.confirm({
-      message: `¿Deseas eliminar ${item.nombre} del carrito?`,
-      header: 'Confirmar eliminación',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí, eliminar',
-      rejectLabel: 'Cancelar',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.removeItem(item);
-      }
-    });
+    const confirmed = window.confirm(`¿Deseas eliminar ${item.nombre} del carrito?`);
+    if (confirmed) {
+      this.removeItem(item);
+    }
   }
 
   /**
@@ -111,29 +95,17 @@ export class CarritoComponent implements OnInit {
    */
   removeItem(item: CartItem): void {
     this.cartService.removeFromCart(item.id_producto);
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Producto eliminado',
-      detail: `${item.nombre} se eliminó del carrito`,
-      life: 3000
-    });
+    console.log(`${item.nombre} se eliminó del carrito`);
   }
 
   /**
    * Limpiar carrito
    */
   confirmClearCart(): void {
-    this.confirmationService.confirm({
-      message: '¿Estás seguro de que deseas vaciar el carrito?',
-      header: 'Confirmar acción',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Sí, vaciar',
-      rejectLabel: 'Cancelar',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.clearCart();
-      }
-    });
+    const confirmed = window.confirm('¿Estás seguro de que deseas vaciar el carrito?');
+    if (confirmed) {
+      this.clearCart();
+    }
   }
 
   /**
@@ -141,12 +113,7 @@ export class CarritoComponent implements OnInit {
    */
   clearCart(): void {
     this.cartService.clearCart();
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Carrito vaciado',
-      detail: 'Se eliminaron todos los productos del carrito',
-      life: 3000
-    });
+    console.log('Carrito vaciado - Se eliminaron todos los productos del carrito');
   }
 
   /**
@@ -161,12 +128,7 @@ export class CarritoComponent implements OnInit {
    */
   proceedToCheckout(): void {
     if (this.cartItems.length === 0) {
-      this.messageService.add({
-        severity: 'warn',
-        summary: 'Carrito vacío',
-        detail: 'Agrega productos al carrito para continuar',
-        life: 3000
-      });
+      alert('Carrito vacío - Agrega productos al carrito para continuar');
       return;
     }
     this.router.navigate(['/cliente/checkout']);

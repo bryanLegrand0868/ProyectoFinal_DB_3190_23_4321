@@ -1,14 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { OrderService, Order } from '../../../../shared/services/order.service';
-import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-mis-pedidos',
   templateUrl: './mis-pedidos.component.html',
   styleUrls: ['./mis-pedidos.component.css'],
-  standalone: false,
-  providers: [MessageService]
+  standalone: false
 })
 export class MisPedidosComponent implements OnInit {
   orders: Order[] = [];
@@ -27,8 +25,7 @@ export class MisPedidosComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private orderService: OrderService,
-    private messageService: MessageService
+    private orderService: OrderService
   ) {}
 
   ngOnInit(): void {
@@ -51,11 +48,7 @@ export class MisPedidosComponent implements OnInit {
       error: (error) => {
         console.error('Error al cargar pedidos:', error);
         this.loading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudieron cargar los pedidos'
-        });
+        alert('Error - No se pudieron cargar los pedidos');
       }
     });
   }

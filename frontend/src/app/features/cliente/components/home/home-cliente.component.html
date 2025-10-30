@@ -7,18 +7,18 @@
         <div class="banner-content">
           <h1 class="banner-title">{{ banner.title }}</h1>
           <p class="banner-subtitle">{{ banner.subtitle }}</p>
-          <button pButton type="button" [label]="banner.cta"
-                  class="p-button-lg p-button-outlined banner-button"
-                  (click)="bannerAction()"></button>
+          <button class="banner-button" (click)="bannerAction()">
+            {{ banner.cta }}
+          </button>
         </div>
       </div>
 
       <!-- Controles del carousel -->
       <button class="carousel-control prev" (click)="prevBanner()">
-        <i class="pi pi-chevron-left"></i>
+        ◀
       </button>
       <button class="carousel-control next" (click)="nextBanner()">
-        <i class="pi pi-chevron-right"></i>
+        ▶
       </button>
 
       <!-- Indicadores -->
@@ -43,7 +43,7 @@
            (click)="viewCategory(category.id)"
            [style.border-color]="category.color">
         <div class="category-icon" [style.background]="category.color">
-          <i [class]="category.icon"></i>
+          <span>{{ category.icon }}</span>
         </div>
         <h3>{{ category.nombre }}</h3>
         <p>{{ category.descripcion }}</p>
@@ -60,7 +60,7 @@
 
     <!-- Loading -->
     <div class="loading-container" *ngIf="loading">
-      <p-progressSpinner></p-progressSpinner>
+      <div class="spinner">⏳ Cargando...</div>
     </div>
 
     <!-- Grid de productos -->
@@ -71,10 +71,10 @@
           <img [src]="product.imagen_url || 'assets/no-image.png'"
                [alt]="product.nombre">
           <div class="product-overlay">
-            <button pButton type="button" icon="pi pi-shopping-cart"
-                    class="p-button-rounded p-button-success"
-                    (click)="addToCart(product, $event)"
-                    pTooltip="Agregar al carrito"></button>
+            <button class="add-to-cart-btn"
+                    (click)="addToCart(product, $event)">
+              🛒 Agregar
+            </button>
           </div>
         </div>
 
@@ -91,20 +91,16 @@
 
     <!-- Ver todos los productos -->
     <div class="view-all-container" *ngIf="!loading && featuredProducts.length > 0">
-      <button pButton type="button" label="Ver todos los productos"
-              icon="pi pi-arrow-right" iconPos="right"
-              class="p-button-lg p-button-outlined"
-              (click)="viewAllProducts()"></button>
+      <button class="view-all-btn" (click)="viewAllProducts()">
+        Ver todos los productos →
+      </button>
     </div>
 
     <!-- Sin productos -->
     <div class="empty-state" *ngIf="!loading && featuredProducts.length === 0">
-      <i class="pi pi-inbox"></i>
+      <span class="empty-icon">📦</span>
       <h3>No hay productos disponibles</h3>
       <p>Próximamente tendremos productos disponibles para ti</p>
     </div>
   </section>
-
-  <!-- Toast para mensajes -->
-  <p-toast></p-toast>
 </div>

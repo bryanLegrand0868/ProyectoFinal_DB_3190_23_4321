@@ -1,30 +1,31 @@
 <div class="mis-pedidos-container">
   <div class="pedidos-header">
     <h1>
-      <i class="pi pi-box"></i>
+      <span class="header-icon">📦</span>
       Mis Pedidos
     </h1>
 
     <div class="header-actions">
-      <p-dropdown
+      <select
         [(ngModel)]="selectedStatus"
-        [options]="statusOptions"
-        optionLabel="label"
-        optionValue="value"
-        (onChange)="onFilterChange()"
-        placeholder="Filtrar por estado">
-      </p-dropdown>
+        (change)="onFilterChange()"
+        class="status-filter">
+        <option *ngFor="let status of statusOptions" [value]="status.value">
+          {{ status.label }}
+        </option>
+      </select>
 
-      <button pButton type="button" label="Seguir comprando"
-              icon="pi pi-shopping-bag"
-              class="p-button-outlined"
-              (click)="continueShopping()"></button>
+      <button type="button"
+              class="btn-outlined"
+              (click)="continueShopping()">
+        🛍️ Seguir comprando
+      </button>
     </div>
   </div>
 
   <!-- Loading -->
   <div class="loading-container" *ngIf="loading">
-    <p-progressSpinner></p-progressSpinner>
+    <div class="spinner">⏳ Cargando pedidos...</div>
   </div>
 
   <!-- Lista de pedidos -->
@@ -38,7 +39,7 @@
         </div>
 
         <div class="order-date">
-          <i class="pi pi-calendar"></i>
+          <span class="date-icon">📅</span>
           {{ order.fecha_pedido | date:'dd/MM/yyyy' }}
         </div>
       </div>
@@ -46,7 +47,7 @@
       <div class="order-body">
         <div class="order-info-section">
           <div class="info-item">
-            <i class="pi pi-map-marker"></i>
+            <span class="info-icon">📍</span>
             <div>
               <p class="info-label">Dirección de Envío</p>
               <p class="info-value">{{ order.direccion_envio }}</p>
@@ -55,7 +56,7 @@
           </div>
 
           <div class="info-item">
-            <i class="pi pi-credit-card"></i>
+            <span class="info-icon">💳</span>
             <div>
               <p class="info-label">Método de Pago</p>
               <p class="info-value">{{ order.tipo_pago.replace('_', ' ') }}</p>
@@ -65,12 +66,12 @@
 
         <div class="order-status-section">
           <div class="status-badge" [ngClass]="getEstadoClass(order.estado_pedido)">
-            <i class="pi pi-circle-fill"></i>
+            <span class="status-dot">🔵</span>
             {{ formatEstado(order.estado_pedido) }}
           </div>
 
           <div class="payment-badge" [ngClass]="getPagoBadgeClass(order.estado_pago)">
-            <i class="pi pi-wallet"></i>
+            <span class="payment-icon">💰</span>
             Pago: {{ formatEstadoPago(order.estado_pago) }}
           </div>
         </div>
@@ -83,31 +84,30 @@
 
       <div class="order-footer">
         <div class="delivery-info" *ngIf="order.fecha_entrega_estimada">
-          <i class="pi pi-truck"></i>
+          <span class="delivery-icon">🚚</span>
           <span>
             Entrega estimada: {{ order.fecha_entrega_estimada | date:'dd/MM/yyyy' }}
           </span>
         </div>
 
-        <button pButton type="button" label="Ver detalles"
-                icon="pi pi-eye"
-                class="p-button-sm p-button-outlined"
-                (click)="viewOrderDetail(order.id_pedido); $event.stopPropagation()"></button>
+        <button type="button"
+                class="btn-sm btn-outlined"
+                (click)="viewOrderDetail(order.id_pedido); $event.stopPropagation()">
+          👁️ Ver detalles
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Sin pedidos -->
   <div class="empty-state" *ngIf="!loading && filteredOrders.length === 0">
-    <i class="pi pi-box"></i>
+    <div class="empty-icon">📦</div>
     <h2>No tienes pedidos{{ selectedStatus !== 'TODOS' ? ' en este estado' : '' }}</h2>
     <p>Comienza a comprar ahora y encuentra los mejores productos</p>
-    <button pButton type="button" label="Ir a comprar"
-            icon="pi pi-shopping-bag"
-            class="p-button-lg p-button-primary"
-            (click)="continueShopping()"></button>
+    <button type="button"
+            class="btn-lg btn-primary"
+            (click)="continueShopping()">
+      🛍️ Ir a comprar
+    </button>
   </div>
-
-  <!-- Toast -->
-  <p-toast></p-toast>
 </div>

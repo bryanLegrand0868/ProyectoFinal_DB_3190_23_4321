@@ -1,14 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService, OrderTracking } from '../../../../shared/services/order.service';
-import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-detalle-pedido',
   templateUrl: './detalle-pedido.component.html',
   styleUrls: ['./detalle-pedido.component.css'],
-  standalone: false,
-  providers: [MessageService]
+  standalone: false
 })
 export class DetallePedidoComponent implements OnInit {
   orderId!: number;
@@ -20,8 +18,7 @@ export class DetallePedidoComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private orderService: OrderService,
-    private messageService: MessageService
+    private orderService: OrderService
   ) {}
 
   ngOnInit(): void {
@@ -50,11 +47,7 @@ export class DetallePedidoComponent implements OnInit {
       error: (error) => {
         console.error('Error al cargar pedido:', error);
         this.loading = false;
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'No se pudo cargar el detalle del pedido'
-        });
+        alert('Error - No se pudo cargar el detalle del pedido');
       }
     });
   }

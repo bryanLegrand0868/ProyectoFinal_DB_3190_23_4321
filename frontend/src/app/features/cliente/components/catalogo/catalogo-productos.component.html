@@ -4,70 +4,53 @@
     <aside class="filters-sidebar">
       <div class="filters-header">
         <h3>Filtros</h3>
-        <button pButton type="button" label="Limpiar" icon="pi pi-times"
-                class="p-button-text p-button-sm"
-                (click)="clearFilters()"></button>
+        <button class="clear-btn" (click)="clearFilters()">
+          ✖ Limpiar
+        </button>
       </div>
 
       <!-- Filtro por categoría -->
       <div class="filter-section">
         <label class="filter-label">Categoría</label>
-        <p-dropdown
-          [(ngModel)]="selectedCategory"
-          [options]="categories"
-          optionLabel="nombre"
-          optionValue="id"
-          placeholder="Todas las categorías"
-          [showClear]="true"
-          (onChange)="onCategoryChange()"
-          styleClass="w-full">
-        </p-dropdown>
+        <select [(ngModel)]="selectedCategory" (change)="onCategoryChange()" class="filter-select">
+          <option [value]="null">Todas las categorías</option>
+          <option *ngFor="let cat of categories" [value]="cat.id">{{ cat.nombre }}</option>
+        </select>
       </div>
 
       <!-- Filtro por marca -->
       <div class="filter-section">
         <label class="filter-label">Marca</label>
-        <p-dropdown
-          [(ngModel)]="selectedBrand"
-          [options]="brands"
-          optionLabel="nombre"
-          optionValue="id"
-          placeholder="Todas las marcas"
-          [showClear]="true"
-          (onChange)="onBrandChange()"
-          styleClass="w-full">
-        </p-dropdown>
+        <select [(ngModel)]="selectedBrand" (change)="onBrandChange()" class="filter-select">
+          <option [value]="null">Todas las marcas</option>
+          <option *ngFor="let brand of brands" [value]="brand.id">{{ brand.nombre }}</option>
+        </select>
       </div>
 
       <!-- Filtro por rango de precio -->
       <div class="filter-section">
         <label class="filter-label">
-          Rango de Precio: Q{{ priceRange[0] }} - Q{{ priceRange[1] }}
+          Precio: Q{{ priceRange[0] }} - Q{{ priceRange[1] }}
         </label>
-        <p-slider
-          [(ngModel)]="priceRange"
-          [range]="true"
-          [min]="0"
-          [max]="1000"
-          [step]="10"
-          (onSlideEnd)="onPriceRangeChange()">
-        </p-slider>
+        <div class="price-inputs">
+          <input type="number" [(ngModel)]="priceRange[0]" (change)="onPriceRangeChange()"
+                 placeholder="Mín" class="price-input">
+          <span>-</span>
+          <input type="number" [(ngModel)]="priceRange[1]" (change)="onPriceRangeChange()"
+                 placeholder="Máx" class="price-input">
+        </div>
       </div>
 
       <!-- Búsqueda adicional -->
       <div class="filter-section">
         <label class="filter-label">Buscar</label>
-        <span class="p-input-icon-left w-full">
-          <i class="pi pi-search"></i>
-          <input
-            type="text"
-            pInputText
-            [(ngModel)]="searchTerm"
-            (keyup.enter)="onSearch()"
-            placeholder="Buscar producto..."
-            class="w-full"
-          />
-        </span>
+        <input
+          type="text"
+          [(ngModel)]="searchTerm"
+          (keyup.enter)="onSearch()"
+          placeholder="Buscar producto..."
+          class="search-input"
+        />
       </div>
     </aside>
 
@@ -84,27 +67,20 @@
 
         <div class="toolbar-right">
           <!-- Ordenamiento -->
-          <p-dropdown
-            [(ngModel)]="sortBy"
-            [options]="sortOptions"
-            optionLabel="label"
-            optionValue="value"
-            (onChange)="onSortChange()"
-            placeholder="Ordenar por">
-          </p-dropdown>
+          <select [(ngModel)]="sortBy" (change)="onSortChange()" class="sort-select">
+            <option *ngFor="let opt of sortOptions" [value]="opt.value">{{ opt.label }}</option>
+          </select>
 
           <!-- Toggle vista -->
-          <button pButton type="button"
-                  [icon]="viewMode === 'grid' ? 'pi pi-list' : 'pi pi-th-large'"
-                  class="p-button-outlined"
-                  (click)="toggleViewMode()"
-                  pTooltip="Cambiar vista"></button>
+          <button class="view-toggle-btn" (click)="toggleViewMode()">
+            {{ viewMode === 'grid' ? '☰ Lista' : '⊞ Grid' }}
+          </button>
         </div>
       </div>
 
       <!-- Loading -->
       <div class="loading-container" *ngIf="loading">
-        <p-progressSpinner></p-progressSpinner>
+        <div class="spinner">⏳ Cargando productos...</div>
       </div>
 
       <!-- Grid de productos -->
@@ -115,10 +91,9 @@
             <img [src]="product.imagen_url || 'assets/no-image.png'"
                  [alt]="product.nombre">
             <div class="product-overlay">
-              <button pButton type="button" icon="pi pi-shopping-cart"
-                      class="p-button-rounded p-button-success"
-                      (click)="addToCart(product, $event)"
-                      pTooltip="Agregar al carrito"></button>
+              <button class="add-cart-btn" (click)="addToCart(product, $event)">
+                🛒 Agregar
+              </button>
             </div>
           </div>
 
@@ -135,15 +110,10 @@
             </p>
 
             <div class="product-footer">
-              <div class="price-container">
-                <span class="product-price">Q{{ product.precio_venta | number:'1.2-2' }}</span>
-              </div>
-
-              <button pButton type="button" label="Agregar"
-                      icon="pi pi-shopping-cart"
-                      class="p-button-sm p-button-success"
-                      (click)="addToCart(product, $event)"
-                      *ngIf="viewMode === 'list'"></button>
+              <span class="product-price">Q{{ product.precio_venta | number:'1.2-2' }}</span>
+              <button class="add-btn-list" *ngIf="viewMode === 'list'" (click)="addToCart(product, $event)">
+                🛒 Agregar
+              </button>
             </div>
           </div>
         </div>
@@ -151,17 +121,13 @@
 
       <!-- Sin resultados -->
       <div class="empty-state" *ngIf="!loading && filteredProducts.length === 0">
-        <i class="pi pi-search"></i>
+        <span class="empty-icon">🔍</span>
         <h3>No se encontraron productos</h3>
         <p>Intenta ajustar los filtros o buscar con otros términos</p>
-        <button pButton type="button" label="Limpiar filtros"
-                icon="pi pi-times"
-                class="p-button-outlined"
-                (click)="clearFilters()"></button>
+        <button class="clear-filters-btn" (click)="clearFilters()">
+          ✖ Limpiar filtros
+        </button>
       </div>
     </main>
   </div>
-
-  <!-- Toast -->
-  <p-toast></p-toast>
 </div>
