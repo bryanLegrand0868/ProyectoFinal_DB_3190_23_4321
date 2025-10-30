@@ -1,18 +1,52 @@
+<!-- app.html -->
 <div class="app-container">
-  <div *ngIf="loading" class="loading-overlay">
-    <p-progressSpinner></p-progressSpinner>
+  <!-- Barra de navegación para administradores -->
+  <nav class="admin-navbar" *ngIf="shouldShowAdminLayout()">
+    <div class="navbar-brand">
+      <span class="brand-icon">🏢</span>
+      <span class="brand-text">SportSwear Admin</span>
+    </div>
+    
+    <div class="navbar-menu">
+      <a *ngFor="let item of menuItems" 
+         [routerLink]="item.routerLink" 
+         routerLinkActive="active"
+         class="nav-item">
+        <i [class]="item.icon"></i>
+        <span>{{ item.label }}</span>
+      </a>
+    </div>
+
+    <div class="navbar-user">
+      <div class="user-info">
+        <span class="user-name">{{ getUserDisplayName() }}</span>
+        <span class="user-role">{{ getUserRole() }}</span>
+      </div>
+      <button class="logout-btn" (click)="logout()">
+        <i class="pi pi-sign-out"></i>
+        Salir
+      </button>
+    </div>
+  </nav>
+
+  <!-- Loading indicator -->
+  <div class="loading-overlay" *ngIf="loading">
+    <div class="spinner">
+      <i class="pi pi-spinner pi-spin"></i>
+      Cargando...
+    </div>
   </div>
 
-  <div class="sidebar" *ngIf="currentUser">
-    <p-menu [model]="menuItems" styleClass="menu-sidebar"></p-menu>
-  </div>
-  
-  <div class="main-content" [ngClass]="{'logged-in': currentUser}">
-    <div class="top-bar" *ngIf="currentUser">
-      <button pButton icon="pi pi-sign-out" label="Cerrar Sesión" (click)="logout()" class="p-button-text"></button>
+  <!-- Contenido principal -->
+  <main class="main-content" [class.with-navbar]="shouldShowAdminLayout()">
+    <!-- Solo mostrar el botón de logout flotante para clientes sin navbar -->
+    <div class="client-logout" *ngIf="isClientUser() && !shouldShowAdminLayout()">
+      <button class="logout-btn-float" (click)="logout()" title="Cerrar Sesión">
+        <i class="pi pi-sign-out"></i>
+      </button>
     </div>
-    <div class="content">
-      <router-outlet></router-outlet>
-    </div>
-  </div>
+
+    <!-- Router outlet -->
+    <router-outlet></router-outlet>
+  </main>
 </div>

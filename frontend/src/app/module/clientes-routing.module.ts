@@ -7,6 +7,7 @@ import { CarritoComponent } from '../features/auth/components/clientes/carrito/c
 import { CheckoutComponent } from '../features/auth/components/clientes/checkout/checkout.component';
 import { MisPedidosComponent } from '../features/auth/components/clientes/mis-pedidos/mis-pedidos.component';
 import { DetallePedidoComponent } from '../features/auth/components/clientes/detalle-pedido/detalle-pedido.component';
+import { PerfilClienteComponent } from '../features/auth/components/clientes/perfil-cliente/perfil-cliente.component';
 
 const routes: Routes = [
   {
@@ -47,6 +48,11 @@ const routes: Routes = [
         path: 'pedido/:id', 
         component: DetallePedidoComponent,
         data: { title: 'Detalle del Pedido' }
+      },
+      { 
+        path: 'perfil', 
+        component: PerfilClienteComponent,
+        data: { title: 'Perfil de Cliente' }
       }
     ]
   }
