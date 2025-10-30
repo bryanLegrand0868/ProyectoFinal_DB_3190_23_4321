@@ -10,6 +10,15 @@ import { PedidosComponent } from './features/auth/components/pedidos/pedidos.com
 import { ReportesComponent } from './features/auth/components/reportes/reportes.component';
 import { AdminComponent } from './features/auth/components/admin/admin.component';
 
+// Importar componentes de cliente e-commerce
+import { ClienteLayoutComponent } from './features/cliente/components/layout/cliente-layout.component';
+import { HomeClienteComponent } from './features/cliente/components/home/home-cliente.component';
+import { CatalogoProductosComponent } from './features/cliente/components/catalogo/catalogo-productos.component';
+import { CarritoComponent } from './features/cliente/components/carrito/carrito.component';
+import { CheckoutComponent } from './features/cliente/components/checkout/checkout.component';
+import { MisPedidosComponent } from './features/cliente/components/mis-pedidos/mis-pedidos.component';
+import { DetallePedidoComponent } from './features/cliente/components/detalle-pedido/detalle-pedido.component';
+
 export const routes: Routes = [
   { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
 
@@ -83,6 +92,45 @@ export const routes: Routes = [
     component: AdminComponent,
     canActivate: [AuthGuard],
     data: { roles: ['Administrador'] },
+  },
+
+  // Rutas del módulo cliente e-commerce
+  {
+    path: 'cliente',
+    component: ClienteLayoutComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['Cliente'] },
+    children: [
+      {
+        path: '',
+        redirectTo: 'home',
+        pathMatch: 'full'
+      },
+      {
+        path: 'home',
+        component: HomeClienteComponent
+      },
+      {
+        path: 'productos',
+        component: CatalogoProductosComponent
+      },
+      {
+        path: 'carrito',
+        component: CarritoComponent
+      },
+      {
+        path: 'checkout',
+        component: CheckoutComponent
+      },
+      {
+        path: 'mis-pedidos',
+        component: MisPedidosComponent
+      },
+      {
+        path: 'pedido/:id',
+        component: DetallePedidoComponent
+      }
+    ]
   },
 
   { path: '**', redirectTo: 'dashboard' },

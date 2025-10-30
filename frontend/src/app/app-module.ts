@@ -18,6 +18,15 @@ import { PedidosComponent } from './features/auth/components/pedidos/pedidos.com
 import { ReportesComponent } from './features/auth/components/reportes/reportes.component';
 import { AdminComponent } from './features/auth/components/admin/admin.component';
 
+// Componentes del módulo cliente e-commerce
+import { ClienteLayoutComponent } from './features/cliente/components/layout/cliente-layout.component';
+import { HomeClienteComponent } from './features/cliente/components/home/home-cliente.component';
+import { CatalogoProductosComponent } from './features/cliente/components/catalogo/catalogo-productos.component';
+import { CarritoComponent } from './features/cliente/components/carrito/carrito.component';
+import { CheckoutComponent } from './features/cliente/components/checkout/checkout.component';
+import { MisPedidosComponent } from './features/cliente/components/mis-pedidos/mis-pedidos.component';
+import { DetallePedidoComponent } from './features/cliente/components/detalle-pedido/detalle-pedido.component';
+
 // PrimeNG modules
 import { CardModule } from 'primeng/card';
 import { ChartModule } from 'primeng/chart';
@@ -35,6 +44,9 @@ import { DialogModule } from 'primeng/dialog';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { TooltipModule } from 'primeng/tooltip';
+import { DropdownModule } from 'primeng/dropdown';
+import { SliderModule } from 'primeng/slider';
+import { InputTextareaModule } from 'primeng/inputtextarea';
 
 // Interceptors
 import { JwtInterceptor } from './shared/guards/jwt.interceptor';
@@ -58,7 +70,15 @@ import { SelectButtonModule } from 'primeng/selectbutton';
     ClientesComponent,
     PedidosComponent,
     ReportesComponent,
-    AdminComponent
+    AdminComponent,
+    // Componentes del módulo cliente
+    ClienteLayoutComponent,
+    HomeClienteComponent,
+    CatalogoProductosComponent,
+    CarritoComponent,
+    CheckoutComponent,
+    MisPedidosComponent,
+    DetallePedidoComponent
   ],
   imports: [
     BrowserModule,
@@ -91,7 +111,10 @@ import { SelectButtonModule } from 'primeng/selectbutton';
     SelectButtonModule,
     InputNumberModule,
     FormsModule,
-    ButtonModule
+    ButtonModule,
+    DropdownModule,
+    SliderModule,
+    InputTextareaModule
   ],
   providers: [
     MessageService,

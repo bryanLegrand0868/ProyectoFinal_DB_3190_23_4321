@@ -1,0 +1,240 @@
+<div class="checkout-container">
+  <div class="checkout-header">
+    <h1>
+      <i class="pi pi-shopping-cart"></i>
+      Finalizar Compra
+    </h1>
+    <button pButton type="button" label="Volver al carrito" icon="pi pi-arrow-left"
+            class="p-button-outlined"
+            (click)="goBack()"></button>
+  </div>
+
+  <div class="checkout-content">
+    <!-- Stepper -->
+    <div class="checkout-stepper">
+      <div class="step" [class.active]="currentStep === 1" [class.completed]="currentStep > 1">
+        <div class="step-number">1</div>
+        <div class="step-label">Datos de Envío</div>
+      </div>
+      <div class="step-line" [class.completed]="currentStep > 1"></div>
+      <div class="step" [class.active]="currentStep === 2" [class.completed]="currentStep > 2">
+        <div class="step-number">2</div>
+        <div class="step-label">Método de Pago</div>
+      </div>
+      <div class="step-line" [class.completed]="currentStep > 2"></div>
+      <div class="step" [class.active]="currentStep === 3">
+        <div class="step-number">3</div>
+        <div class="step-label">Confirmar Pedido</div>
+      </div>
+    </div>
+
+    <div class="checkout-main">
+      <!-- Formulario -->
+      <div class="checkout-form-section">
+        <form [formGroup]="checkoutForm">
+          <!-- Paso 1: Datos de Envío -->
+          <div class="form-step" *ngIf="currentStep === 1">
+            <h2>Datos de Envío</h2>
+
+            <div class="form-grid">
+              <div class="form-field full-width">
+                <label>Dirección de Envío *</label>
+                <textarea pInputTextarea
+                          formControlName="direccion_envio"
+                          rows="3"
+                          placeholder="Ingresa tu dirección completa"></textarea>
+                <small class="p-error" *ngIf="checkoutForm.get('direccion_envio')?.invalid && checkoutForm.get('direccion_envio')?.touched">
+                  La dirección es requerida (mínimo 10 caracteres)
+                </small>
+              </div>
+
+              <div class="form-field">
+                <label>Ciudad *</label>
+                <input type="text" pInputText
+                       formControlName="ciudad_envio"
+                       placeholder="Ciudad">
+                <small class="p-error" *ngIf="checkoutForm.get('ciudad_envio')?.invalid && checkoutForm.get('ciudad_envio')?.touched">
+                  La ciudad es requerida
+                </small>
+              </div>
+
+              <div class="form-field">
+                <label>País *</label>
+                <p-dropdown
+                  formControlName="pais_envio"
+                  [options]="countries"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Selecciona país"
+                  styleClass="w-full">
+                </p-dropdown>
+              </div>
+
+              <div class="form-field">
+                <label>Código Postal</label>
+                <input type="text" pInputText
+                       formControlName="codigo_postal"
+                       placeholder="Código postal (opcional)">
+              </div>
+
+              <div class="form-field">
+                <label>Teléfono de Contacto *</label>
+                <input type="tel" pInputText
+                       formControlName="telefono_contacto"
+                       placeholder="+502 1234-5678">
+                <small class="p-error" *ngIf="checkoutForm.get('telefono_contacto')?.invalid && checkoutForm.get('telefono_contacto')?.touched">
+                  Ingresa un teléfono válido
+                </small>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button pButton type="button" label="Siguiente" icon="pi pi-arrow-right" iconPos="right"
+                      class="p-button-lg"
+                      (click)="nextStep()"></button>
+            </div>
+          </div>
+
+          <!-- Paso 2: Método de Pago -->
+          <div class="form-step" *ngIf="currentStep === 2">
+            <h2>Método de Pago</h2>
+
+            <div class="payment-methods-grid">
+              <div class="payment-method" *ngFor="let method of paymentMethods"
+                   [class.selected]="checkoutForm.value.tipo_pago === method.value"
+                   (click)="checkoutForm.patchValue({tipo_pago: method.value})">
+                <i class="pi" [ngClass]="method.icon"></i>
+                <span>{{ method.label }}</span>
+              </div>
+            </div>
+
+            <!-- Formulario de tarjeta (solo visual) -->
+            <div class="card-form" *ngIf="checkoutForm.value.tipo_pago === 'TARJETA_CREDITO' || checkoutForm.value.tipo_pago === 'TARJETA_DEBITO'">
+              <div class="form-grid">
+                <div class="form-field full-width">
+                  <label>Número de Tarjeta</label>
+                  <input type="text" pInputText
+                         formControlName="card_number"
+                         placeholder="1234 5678 9012 3456"
+                         maxlength="19">
+                </div>
+
+                <div class="form-field full-width">
+                  <label>Nombre en la Tarjeta</label>
+                  <input type="text" pInputText
+                         formControlName="card_name"
+                         placeholder="NOMBRE APELLIDO">
+                </div>
+
+                <div class="form-field">
+                  <label>Fecha de Vencimiento</label>
+                  <input type="text" pInputText
+                         formControlName="card_expiry"
+                         placeholder="MM/AA"
+                         maxlength="5">
+                </div>
+
+                <div class="form-field">
+                  <label>CVV</label>
+                  <input type="text" pInputText
+                         formControlName="card_cvv"
+                         placeholder="123"
+                         maxlength="4">
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button pButton type="button" label="Anterior" icon="pi pi-arrow-left"
+                      class="p-button-outlined p-button-lg"
+                      (click)="prevStep()"></button>
+              <button pButton type="button" label="Siguiente" icon="pi pi-arrow-right" iconPos="right"
+                      class="p-button-lg"
+                      (click)="nextStep()"></button>
+            </div>
+          </div>
+
+          <!-- Paso 3: Confirmar Pedido -->
+          <div class="form-step" *ngIf="currentStep === 3">
+            <h2>Confirmar Pedido</h2>
+
+            <!-- Resumen de envío -->
+            <div class="summary-box">
+              <h3><i class="pi pi-map-marker"></i> Datos de Envío</h3>
+              <p><strong>Dirección:</strong> {{ checkoutForm.value.direccion_envio }}</p>
+              <p><strong>Ciudad:</strong> {{ checkoutForm.value.ciudad_envio }}</p>
+              <p><strong>País:</strong> {{ checkoutForm.value.pais_envio }}</p>
+              <p><strong>Teléfono:</strong> {{ checkoutForm.value.telefono_contacto }}</p>
+            </div>
+
+            <!-- Resumen de pago -->
+            <div class="summary-box">
+              <h3><i class="pi pi-credit-card"></i> Método de Pago</h3>
+              <p>
+                {{ paymentMethods.find(m => m.value === checkoutForm.value.tipo_pago)?.label }}
+              </p>
+            </div>
+
+            <!-- Productos -->
+            <div class="summary-box">
+              <h3><i class="pi pi-shopping-cart"></i> Productos ({{ cartItems.length }})</h3>
+              <div class="product-summary-list">
+                <div class="product-summary-item" *ngFor="let item of cartItems">
+                  <img [src]="item.imagen_url || 'assets/no-image.png'" [alt]="item.nombre">
+                  <div class="product-summary-info">
+                    <p class="product-name">{{ item.nombre }}</p>
+                    <p class="product-quantity">Cantidad: {{ item.cantidad }}</p>
+                  </div>
+                  <p class="product-price">Q{{ item.subtotal | number:'1.2-2' }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button pButton type="button" label="Anterior" icon="pi pi-arrow-left"
+                      class="p-button-outlined p-button-lg"
+                      (click)="prevStep()"></button>
+              <button pButton type="button" label="Confirmar Pedido" icon="pi pi-check" iconPos="right"
+                      class="p-button-success p-button-lg"
+                      [loading]="loading"
+                      (click)="confirmOrder()"></button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <!-- Resumen del pedido (sidebar) -->
+      <div class="order-summary-sidebar">
+        <h2>Resumen del Pedido</h2>
+
+        <div class="summary-details">
+          <div class="summary-row">
+            <span>Subtotal:</span>
+            <span>Q{{ subtotal | number:'1.2-2' }}</span>
+          </div>
+          <div class="summary-row">
+            <span>IVA (13%):</span>
+            <span>Q{{ iva | number:'1.2-2' }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Envío:</span>
+            <span>Q{{ shippingCost | number:'1.2-2' }}</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-row summary-total">
+            <span>Total:</span>
+            <span class="total-value">Q{{ total | number:'1.2-2' }}</span>
+          </div>
+        </div>
+
+        <div class="security-info">
+          <i class="pi pi-shield"></i>
+          <p>Transacción segura y protegida</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <p-toast></p-toast>
+</div>

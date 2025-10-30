@@ -1,0 +1,114 @@
+<div class="cliente-layout">
+  <!-- Header -->
+  <header class="header">
+    <div class="header-container">
+      <!-- Logo -->
+      <div class="logo" (click)="goToHome()">
+        <i class="pi pi-shopping-bag"></i>
+        <span>SportSwear</span>
+      </div>
+
+      <!-- Barra de búsqueda -->
+      <div class="search-bar">
+        <span class="p-input-icon-left search-wrapper">
+          <i class="pi pi-search"></i>
+          <input
+            type="text"
+            pInputText
+            [(ngModel)]="searchQuery"
+            (keyup.enter)="onSearch()"
+            placeholder="Buscar productos..."
+            class="search-input"
+          />
+        </span>
+        <button
+          pButton
+          type="button"
+          icon="pi pi-search"
+          class="p-button-primary search-button"
+          (click)="onSearch()"
+        ></button>
+      </div>
+
+      <!-- Menú de navegación -->
+      <nav class="nav-menu">
+        <a class="nav-link" (click)="goToHome()">
+          <i class="pi pi-home"></i>
+          <span>Inicio</span>
+        </a>
+        <a class="nav-link" (click)="goToProducts()">
+          <i class="pi pi-list"></i>
+          <span>Productos</span>
+        </a>
+        <a class="nav-link" (click)="goToOrders()">
+          <i class="pi pi-box"></i>
+          <span>Mis Pedidos</span>
+        </a>
+      </nav>
+
+      <!-- Carrito y Usuario -->
+      <div class="header-actions">
+        <!-- Carrito -->
+        <div class="cart-icon" (click)="goToCart()">
+          <i class="pi pi-shopping-cart"></i>
+          <span class="cart-badge" *ngIf="cartCount > 0">{{ cartCount }}</span>
+        </div>
+
+        <!-- Usuario -->
+        <div class="user-menu" (click)="toggleUserMenu()">
+          <i class="pi pi-user"></i>
+          <span class="user-name">{{ currentUser?.usuario || 'Usuario' }}</span>
+          <i class="pi pi-angle-down"></i>
+
+          <!-- Dropdown menu -->
+          <div class="user-dropdown" *ngIf="showUserMenu">
+            <div class="dropdown-item" (click)="goToProfile()">
+              <i class="pi pi-user"></i>
+              <span>Mi Perfil</span>
+            </div>
+            <div class="dropdown-item" (click)="goToOrders()">
+              <i class="pi pi-box"></i>
+              <span>Mis Pedidos</span>
+            </div>
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item logout" (click)="logout()">
+              <i class="pi pi-sign-out"></i>
+              <span>Cerrar Sesión</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <main class="main-content">
+    <router-outlet></router-outlet>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <div class="footer-section">
+        <h4>Sobre Nosotros</h4>
+        <p>Tu tienda de deportes en línea</p>
+      </div>
+      <div class="footer-section">
+        <h4>Contacto</h4>
+        <p>Email: info@sportswear.com</p>
+        <p>Tel: +502 2367-3000</p>
+      </div>
+      <div class="footer-section">
+        <h4>Síguenos</h4>
+        <div class="social-icons">
+          <i class="pi pi-facebook"></i>
+          <i class="pi pi-twitter"></i>
+          <i class="pi pi-instagram"></i>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2024 SportSwear. Todos los derechos reservados.</p>
+    </div>
+  </footer>
+</div>

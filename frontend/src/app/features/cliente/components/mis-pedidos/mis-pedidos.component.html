@@ -1,0 +1,113 @@
+<div class="mis-pedidos-container">
+  <div class="pedidos-header">
+    <h1>
+      <i class="pi pi-box"></i>
+      Mis Pedidos
+    </h1>
+
+    <div class="header-actions">
+      <p-dropdown
+        [(ngModel)]="selectedStatus"
+        [options]="statusOptions"
+        optionLabel="label"
+        optionValue="value"
+        (onChange)="onFilterChange()"
+        placeholder="Filtrar por estado">
+      </p-dropdown>
+
+      <button pButton type="button" label="Seguir comprando"
+              icon="pi pi-shopping-bag"
+              class="p-button-outlined"
+              (click)="continueShopping()"></button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-container" *ngIf="loading">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
+
+  <!-- Lista de pedidos -->
+  <div class="orders-list" *ngIf="!loading && filteredOrders.length > 0">
+    <div class="order-card" *ngFor="let order of filteredOrders"
+         (click)="viewOrderDetail(order.id_pedido)">
+      <div class="order-header">
+        <div class="order-id">
+          <span class="label">Pedido #</span>
+          <span class="value">{{ order.id_pedido }}</span>
+        </div>
+
+        <div class="order-date">
+          <i class="pi pi-calendar"></i>
+          {{ order.fecha_pedido | date:'dd/MM/yyyy' }}
+        </div>
+      </div>
+
+      <div class="order-body">
+        <div class="order-info-section">
+          <div class="info-item">
+            <i class="pi pi-map-marker"></i>
+            <div>
+              <p class="info-label">Dirección de Envío</p>
+              <p class="info-value">{{ order.direccion_envio }}</p>
+              <p class="info-value-secondary">{{ order.ciudad_envio }}, {{ order.pais_envio }}</p>
+            </div>
+          </div>
+
+          <div class="info-item">
+            <i class="pi pi-credit-card"></i>
+            <div>
+              <p class="info-label">Método de Pago</p>
+              <p class="info-value">{{ order.tipo_pago.replace('_', ' ') }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="order-status-section">
+          <div class="status-badge" [ngClass]="getEstadoClass(order.estado_pedido)">
+            <i class="pi pi-circle-fill"></i>
+            {{ formatEstado(order.estado_pedido) }}
+          </div>
+
+          <div class="payment-badge" [ngClass]="getPagoBadgeClass(order.estado_pago)">
+            <i class="pi pi-wallet"></i>
+            Pago: {{ formatEstadoPago(order.estado_pago) }}
+          </div>
+        </div>
+
+        <div class="order-total-section">
+          <p class="total-label">Total</p>
+          <p class="total-value">Q{{ order.total | number:'1.2-2' }}</p>
+        </div>
+      </div>
+
+      <div class="order-footer">
+        <div class="delivery-info" *ngIf="order.fecha_entrega_estimada">
+          <i class="pi pi-truck"></i>
+          <span>
+            Entrega estimada: {{ order.fecha_entrega_estimada | date:'dd/MM/yyyy' }}
+          </span>
+        </div>
+
+        <button pButton type="button" label="Ver detalles"
+                icon="pi pi-eye"
+                class="p-button-sm p-button-outlined"
+                (click)="viewOrderDetail(order.id_pedido); $event.stopPropagation()"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sin pedidos -->
+  <div class="empty-state" *ngIf="!loading && filteredOrders.length === 0">
+    <i class="pi pi-box"></i>
+    <h2>No tienes pedidos{{ selectedStatus !== 'TODOS' ? ' en este estado' : '' }}</h2>
+    <p>Comienza a comprar ahora y encuentra los mejores productos</p>
+    <button pButton type="button" label="Ir a comprar"
+            icon="pi pi-shopping-bag"
+            class="p-button-lg p-button-primary"
+            (click)="continueShopping()"></button>
+  </div>
+
+  <!-- Toast -->
+  <p-toast></p-toast>
+</div>
