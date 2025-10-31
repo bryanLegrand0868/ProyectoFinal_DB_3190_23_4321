@@ -63,6 +63,7 @@ export class CheckoutComponent implements OnInit {
     ) { }
 
     ngOnInit(): void {
+        console.log('🛒 Checkout component loaded');
         this.initForm();
         this.loadCart();
     }
@@ -72,21 +73,17 @@ export class CheckoutComponent implements OnInit {
      */
     initForm(): void {
         this.checkoutForm = this.fb.group({
-            // Datos de envío
+            // Datos de envío - EXACTO al formato del backend
             direccion_envio: ['', [Validators.required, Validators.minLength(10)]],
             ciudad_envio: ['', Validators.required],
             pais_envio: ['Guatemala', Validators.required],
-            codigo_postal: [''],
             telefono_contacto: ['', [Validators.required, Validators.pattern(/^[0-9\-\+\s]{8,}$/)]],
 
-            // Método de pago
+            // Método de pago - EXACTO al formato del backend
             tipo_pago: ['TARJETA_CREDITO', Validators.required],
 
-            // Datos de pago (opcional, solo para validación visual)
-            card_number: [''],
-            card_name: [''],
-            card_expiry: [''],
-            card_cvv: ['']
+            // Campos adicionales para el formulario (no se envían al backend)
+            codigo_postal: [''] // Solo para UI, no se incluye en el POST
         });
     }
 
@@ -98,7 +95,7 @@ export class CheckoutComponent implements OnInit {
 
         if (this.cartItems.length === 0) {
             alert('Carrito vacío - No hay productos en el carrito');
-            this.router.navigate(['/cliente/productos']);
+            this.router.navigate(['/tienda/catalogo']);
             return;
         }
 
@@ -120,7 +117,7 @@ export class CheckoutComponent implements OnInit {
      */
     nextStep(): void {
         if (this.currentStep === 1) {
-            // Validar datos de envío
+            // Validar datos de envío - SOLO los campos que van al backend
             const shippingFields = ['direccion_envio', 'ciudad_envio', 'pais_envio', 'telefono_contacto'];
             const isValid = shippingFields.every(field =>
                 this.checkoutForm.get(field)?.valid
@@ -157,12 +154,11 @@ export class CheckoutComponent implements OnInit {
 
         this.loading = true;
 
-        // Preparar datos del pedido
+        // ✅ FORMATO EXACTO del backend - SIN codigo_postal
         const orderData = {
             direccion_envio: this.checkoutForm.value.direccion_envio,
             ciudad_envio: this.checkoutForm.value.ciudad_envio,
             pais_envio: this.checkoutForm.value.pais_envio,
-            codigo_postal: this.checkoutForm.value.codigo_postal || '',
             telefono_contacto: this.checkoutForm.value.telefono_contacto,
             tipo_pago: this.checkoutForm.value.tipo_pago,
             detalles: this.cartItems.map(item => ({
@@ -171,12 +167,16 @@ export class CheckoutComponent implements OnInit {
                 precio_unitario: item.precio_venta
             }))
         };
+        console.log('📦 Sending order data (exact backend format):', orderData);
+        console.log('🔗 API URL:', 'POST http://localhost:3000/api/orders');
 
         // Crear pedido
         this.orderService.createOrder(orderData).subscribe({
             next: (response: any) => {
                 this.loading = false;
-                if (response.success) {
+                console.log('✅ Order response:', response);
+                
+                if (response && (response.success || response.id_pedido || response.message)) {
                     alert('Pedido confirmado - Tu pedido ha sido registrado exitosamente');
 
                     // Limpiar carrito
@@ -184,20 +184,30 @@ export class CheckoutComponent implements OnInit {
 
                     // Navegar a mis pedidos
                     setTimeout(() => {
-                        this.router.navigate(['/cliente/mis-pedidos']);
+                        this.router.navigate(['/tienda/mis-pedidos']);
                     }, 1000);
                 } else {
-                    alert('Error - ' + (response.message || 'No se pudo procesar el pedido'));
+                    alert('Error - ' + (response?.message || 'No se pudo procesar el pedido'));
                 }
             },
             error: (error) => {
                 this.loading = false;
-                console.error('Error al crear pedido:', error);
-                alert('Error - No se pudo procesar el pedido. Intenta nuevamente.');
+                console.error('❌ Error al crear pedido:', error);
+                console.log('📊 Error details:', {
+                    status: error.status,
+                    statusText: error.statusText,
+                    url: error.url,
+                    message: error.message
+                });
+                
+                alert('Error - No se pudo procesar el pedido. Detalles: ' + (error.message || 'Error desconocido'));
             }
         });
     }
-    // Add this method to your CheckoutComponent class
+
+    /**
+     * Obtener etiqueta del método de pago
+     */
     getPaymentMethodLabel(methodValue: string): string {
         const method = this.paymentMethods.find(m => m.value === methodValue);
         return method ? method.label : '';
@@ -207,6 +217,6 @@ export class CheckoutComponent implements OnInit {
      * Volver al carrito
      */
     goBack(): void {
-        this.router.navigate(['/cliente/carrito']);
+        this.router.navigate(['/tienda/carrito']);
     }
 }

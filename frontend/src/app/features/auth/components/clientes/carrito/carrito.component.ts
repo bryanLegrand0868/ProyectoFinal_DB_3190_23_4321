@@ -120,7 +120,7 @@ export class CarritoComponent implements OnInit {
    * Continuar comprando
    */
   continueShopping(): void {
-    this.router.navigate(['/cliente/productos']);
+    this.router.navigate(['/tienda/productos']);
   }
 
   /**
@@ -131,7 +131,7 @@ export class CarritoComponent implements OnInit {
       alert('Carrito vacío - Agrega productos al carrito para continuar');
       return;
     }
-    this.router.navigate(['/cliente/checkout']);
+    this.router.navigate(['/tienda/checkout']);
   }
 
   /**
